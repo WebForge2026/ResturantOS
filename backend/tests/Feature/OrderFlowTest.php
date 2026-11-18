@@ -20,20 +20,20 @@ class OrderFlowTest extends NoarTestCase
         $guest = $res->json('guest_token');
         $publicId = $res->json('order.public_id');
         $this->assertSame('accepted', $res->json('order.status')); // auto-accept mode
-        // server-side prices: 2×15.90 + 12.90 + 2×3.50 = 51.70
-        $this->assertSame(5170, $res->json('order.total_cents'));
+        // server-side prices: 2×10.00 + 12.50 + 2×2.50 = 37.50
+        $this->assertSame(3750, $res->json('order.total_cents'));
 
         $order = Order::where('public_id', $publicId)->firstOrFail();
         $session = TableSession::find($order->table_session_id);
         $check = Check::where('table_session_id', $session->id)->firstOrFail();
         // check accumulates immediately on acceptance, not on readiness
-        $this->assertSame(5170, $check->total_cents);
+        $this->assertSame(3750, $check->total_cents);
 
         // 2. routing: hot kitchen gets burgers, cold gets salad, bar gets colas
         $this->actingAsEmail('kitchen@noar.local');
         $kds = $this->getJson($this->b('/kds?display=kitchen'))->assertOk()->json('tickets');
         $kitchenNames = collect($kds)->flatMap(fn ($t) => collect($t['items'])->pluck('name'))->all();
-        $this->assertEqualsCanonicalizing(['NOAR Смаш бургер', 'Цезар с пушено пиле'], $kitchenNames);
+        $this->assertEqualsCanonicalizing(['Бургер телешки', 'Цезар'], $kitchenNames);
         $this->assertEqualsCanonicalizing(['Топла кухня', 'Студена кухня'], collect($kds)->pluck('station.name')->all());
         // kitchen cannot open the bar display
         $this->getJson($this->b('/kds?display=bar'))->assertForbidden();
@@ -41,12 +41,12 @@ class OrderFlowTest extends NoarTestCase
         $this->actingAsEmail('bar@noar.local');
         $bar = $this->getJson($this->b('/kds?display=bar'))->assertOk()->json('tickets');
         $this->assertCount(1, $bar);
-        $this->assertSame('Кока-Кола 330 мл', $bar[0]['items'][0]['name']);
+        $this->assertSame(self::COLA, $bar[0]['items'][0]['name']);
 
         // 3. bar marks drinks ready → order partially ready, burgers unaffected
         $this->patchJson($this->b('/prep-tickets/'.$bar[0]['id']), ['status' => 'ready'])->assertOk();
         $this->assertSame('partially_ready', $order->fresh()->status);
-        $burgerPrep = PrepItem::whereHas('orderItem', fn ($q) => $q->where('order_id', $order->id)->where('name', 'NOAR Смаш бургер'))->first();
+        $burgerPrep = PrepItem::whereHas('orderItem', fn ($q) => $q->where('order_id', $order->id)->where('name', 'Бургер телешки'))->first();
         $this->assertSame('queued', $burgerPrep->status);
         // bartender cannot touch kitchen items
         $this->patchJson($this->b('/prep-items/'.$burgerPrep->id), ['status' => 'ready'])->assertForbidden();
@@ -59,7 +59,7 @@ class OrderFlowTest extends NoarTestCase
         $this->patchJson($this->b('/prep-items/'.$burgerPrep->id), ['status' => 'preparing'])->assertOk();
         $this->patchJson($this->b('/prep-items/'.$burgerPrep->id), ['status' => 'ready'])->assertOk();
         $this->assertSame('partially_ready', $order->fresh()->status); // salad still queued
-        $salad = PrepItem::whereHas('orderItem', fn ($q) => $q->where('order_id', $order->id)->where('name', 'Цезар с пушено пиле'))->first();
+        $salad = PrepItem::whereHas('orderItem', fn ($q) => $q->where('order_id', $order->id)->where('name', 'Цезар'))->first();
         $this->patchJson($this->b('/prep-items/'.$salad->id), ['status' => 'ready'])->assertOk();
         $this->assertSame('ready', $order->fresh()->status);
 
@@ -78,9 +78,9 @@ class OrderFlowTest extends NoarTestCase
         $this->getJson("/api/v1/public/sessions/{$guest}")->assertJsonPath('orders.0.status', 'served');
 
         // 6. round 2 on the same session/check
-        $round2 = $this->guestOrder(8, [['product_id' => $this->product('Crimson Negroni')->id, 'quantity' => 1]])->assertCreated();
+        $round2 = $this->guestOrder(8, [['product_id' => $this->product('Бира Шуменско кен')->id, 'quantity' => 1]])->assertCreated();
         $this->assertSame($guest, $round2->json('guest_token'));
-        $this->assertSame(5170 + 1200, $check->fresh()->total_cents);
+        $this->assertSame(3750 + 250, $check->fresh()->total_cents);
 
         // 7. bill request
         $this->postJson("/api/v1/public/sessions/{$guest}/requests", ['type' => 'bill'], ['Idempotency-Key' => 'bill-1'])->assertCreated();
@@ -90,27 +90,27 @@ class OrderFlowTest extends NoarTestCase
         $tables = collect($this->getJson($this->b('/tables-live'))->json('tables'));
         $this->assertSame('bill', $tables->firstWhere('number', 8)['status']);
         $detail = $this->getJson($this->b('/sessions/'.$session->id))->assertOk();
-        $this->assertSame(6370, $detail->json('checks.0.due_cents'));
+        $this->assertSame(4000, $detail->json('checks.0.due_cents'));
 
         // cannot clear an unpaid table
         $this->postJson($this->b("/sessions/{$session->id}/clear"))->assertStatus(409);
 
         // 8. split payment: items + remainder by cash
-        $colaLine = collect($detail->json('checks.0.items'))->firstWhere('name', 'Кока-Кола 330 мл (Класик)');
+        $colaLine = collect($detail->json('checks.0.items'))->firstWhere('name', self::COLA);
         $this->postJson($this->b("/checks/{$check->id}/payments"), ['method' => 'card', 'mode' => 'items', 'check_item_ids' => [$colaLine['id']]], ['Idempotency-Key' => 'pay-1'])
-            ->assertCreated()->assertJsonPath('check.paid_cents', 700);
+            ->assertCreated()->assertJsonPath('check.paid_cents', 500);
         // retry with the same key does not double-charge
         $this->postJson($this->b("/checks/{$check->id}/payments"), ['method' => 'card', 'mode' => 'items', 'check_item_ids' => [$colaLine['id']]], ['Idempotency-Key' => 'pay-1'])
             ->assertCreated()->assertHeader('Idempotent-Replay', 'true');
-        $this->assertSame(700, $check->fresh()->paid_cents);
+        $this->assertSame(500, $check->fresh()->paid_cents);
 
-        $this->postJson($this->b("/checks/{$check->id}/payments"), ['method' => 'cash', 'mode' => 'full', 'tendered_cents' => 6000], ['Idempotency-Key' => 'pay-2'])
-            ->assertCreated()->assertJsonPath('payment.change_cents', 6000 - 5670)->assertJsonPath('check.status', 'settled');
+        $this->postJson($this->b("/checks/{$check->id}/payments"), ['method' => 'cash', 'mode' => 'full', 'tendered_cents' => 4000], ['Idempotency-Key' => 'pay-2'])
+            ->assertCreated()->assertJsonPath('payment.change_cents', 4000 - 3500)->assertJsonPath('check.status', 'settled');
 
-        // round-2 negroni is not yet served → table cannot be cleared yet
+        // round-2 beer is not yet served → table cannot be cleared yet
         $this->postJson($this->b("/sessions/{$session->id}/clear"))->assertStatus(409);
         $this->actingAsEmail('bar@noar.local');
-        $negroni = PrepItem::whereHas('orderItem', fn ($q) => $q->where('name', 'Crimson Negroni')->whereHas('order', fn ($o) => $o->where('table_session_id', $session->id)))->first();
+        $negroni = PrepItem::whereHas('orderItem', fn ($q) => $q->where('name', 'Бира Шуменско кен')->whereHas('order', fn ($o) => $o->where('table_session_id', $session->id)))->first();
         $this->patchJson($this->b('/prep-items/'.$negroni->id), ['status' => 'ready'])->assertOk();
         $this->postJson($this->b('/orders/'.$negroni->orderItem->order_id.'/serve'))->assertOk();
 
@@ -123,7 +123,7 @@ class OrderFlowTest extends NoarTestCase
 
         // 9. reports reflect the real payments exactly once
         $this->actingAsEmail('manager@noar.local');
-        $this->getJson($this->b('/reports/summary'))->assertOk()->assertJsonPath('kpi.sales_cents', 6370);
+        $this->getJson($this->b('/reports/summary'))->assertOk()->assertJsonPath('kpi.sales_cents', 4000);
     }
 
     public function test_manual_accept_mode_requires_staff_and_check_is_filled_on_accept(): void
@@ -138,34 +138,36 @@ class OrderFlowTest extends NoarTestCase
 
         $this->actingAsEmail('waiter@noar.local');
         $this->postJson($this->b("/orders/{$order->id}/accept"))->assertOk()->assertJsonPath('order.status', 'accepted');
-        $this->assertSame(5170, Check::where('table_session_id', $order->table_session_id)->value('total_cents'));
+        $this->assertSame(3750, Check::where('table_session_id', $order->table_session_id)->value('total_cents'));
         $this->postJson($this->b("/orders/{$order->id}/accept"))->assertOk(); // idempotent
         $this->assertSame(3, PrepItem::count()); // one prep item per order item
     }
 
     public function test_qr_order_is_idempotent_and_server_prices_are_authoritative(): void
     {
-        $items = [['product_id' => $this->product('Маргарита Наполетана')->id, 'quantity' => 1, 'modifier_ids' => [$this->option('Маргарита Наполетана', '40 см')], 'price_cents' => 1]];
+        $this->addTestVariants();
+        $items = [['product_id' => $this->product('Маргарита')->id, 'quantity' => 1, 'modifier_ids' => [$this->option('Маргарита', '40 см')], 'price_cents' => 1]];
         $a = $this->guestOrder(5, $items, null, 'same-key')->assertCreated();
         $b = $this->guestOrder(5, $items, null, 'same-key')->assertCreated();
         $this->assertSame($a->json('order.public_id'), $b->json('order.public_id'));
         $this->assertSame(1, Order::count());
-        $this->assertSame(1190 + 450, $a->json('order.total_cents'));
+        $this->assertSame(850 + 450, $a->json('order.total_cents'));
 
         // reused key with a different body is rejected
-        $this->guestOrder(5, [['product_id' => $this->product('Диавола')->id, 'quantity' => 1, 'modifier_ids' => [$this->option('Диавола', '32 см')]]], null, 'same-key')->assertStatus(422);
+        $this->guestOrder(5, [['product_id' => $this->product('Пеперони')->id, 'quantity' => 1, 'modifier_ids' => [$this->option('Пеперони', '32 см')]]], null, 'same-key')->assertStatus(422);
     }
 
     public function test_validation_of_modifiers_availability_and_qr_token(): void
     {
-        $burger = $this->product('NOAR Смаш бургер');
+        $this->addTestVariants();
+        $burger = $this->product('Бургер телешки');
         // required variant missing
         $this->guestOrder(2, [['product_id' => $burger->id, 'quantity' => 1]])->assertStatus(422)->assertJsonPath('error.code', 'modifier_required');
         // option from another product
-        $this->guestOrder(2, [['product_id' => $burger->id, 'quantity' => 1, 'modifier_ids' => [$this->option('Диавола', '40 см')]]])->assertStatus(422);
+        $this->guestOrder(2, [['product_id' => $burger->id, 'quantity' => 1, 'modifier_ids' => [$this->option('Пеперони', '40 см')]]])->assertStatus(422);
         // unavailable product
         $burger->update(['is_available' => false]);
-        $this->guestOrder(2, [['product_id' => $burger->id, 'quantity' => 1, 'modifier_ids' => [$this->option('NOAR Смаш бургер', 'Средно')]]])->assertJsonPath('error.code', 'product_unavailable');
+        $this->guestOrder(2, [['product_id' => $burger->id, 'quantity' => 1, 'modifier_ids' => [$this->option('Бургер телешки', 'Средно')]]])->assertJsonPath('error.code', 'product_unavailable');
         // bogus QR token
         $this->postJson('/api/v1/public/tables/not-a-token/orders', ['items' => []], ['Idempotency-Key' => 'x'])->assertNotFound();
         // missing idempotency key
@@ -180,16 +182,16 @@ class OrderFlowTest extends NoarTestCase
         $this->assertEqualsWithDelta(360, (float) $beef->fresh()->reserved, 0.001);
 
         $this->actingAsEmail('waiter@noar.local');
-        $burger = $order->items()->where('name', 'NOAR Смаш бургер')->first();
+        $burger = $order->items()->where('name', 'Бургер телешки')->first();
         $this->postJson($this->b("/order-items/{$burger->id}/cancel"), ['reason' => 'грешка'])->assertForbidden(); // waiter lacks orders.cancel
 
         $this->actingAsEmail('manager@noar.local');
         $this->postJson($this->b("/order-items/{$burger->id}/cancel"), ['reason' => 'грешка'])->assertOk();
         $this->assertEqualsWithDelta(0, (float) $beef->fresh()->reserved, 0.001);
-        $this->assertSame(5170 - 3180, Check::where('table_session_id', $order->table_session_id)->value('total_cents'));
-        $this->assertSame(3, StockMovement::where('order_item_id', $burger->id)->where('type', 'release')->count()); // 3 recipe ingredients
+        $this->assertSame(3750 - 2000, Check::where('table_session_id', $order->table_session_id)->value('total_cents'));
+        $this->assertSame(4, StockMovement::where('order_item_id', $burger->id)->where('type', 'release')->count()); // 4 recipe ingredients
         $this->postJson($this->b("/order-items/{$burger->id}/cancel"), ['reason' => 'повторно'])->assertStatus(409);
-        $this->assertSame(3, StockMovement::where('order_item_id', $burger->id)->where('type', 'release')->count());
+        $this->assertSame(4, StockMovement::where('order_item_id', $burger->id)->where('type', 'release')->count());
     }
 
     public function test_discount_requires_permission_and_split_merge_safeguards(): void
@@ -203,7 +205,7 @@ class OrderFlowTest extends NoarTestCase
 
         $this->actingAsEmail('manager@noar.local');
         $this->postJson($this->b("/checks/{$check->id}/discount"), ['type' => 'percent', 'value' => 10, 'reason' => 'VIP'])
-            ->assertOk()->assertJsonPath('check.discount_cents', 517)->assertJsonPath('check.total_cents', 5170 - 517);
+            ->assertOk()->assertJsonPath('check.discount_cents', 375)->assertJsonPath('check.total_cents', 3750 - 375);
         // split refused when a discount is applied
         $items = collect($this->getJson($this->b("/checks/{$check->id}"))->json('check.items'));
         $this->postJson($this->b("/checks/{$check->id}/split"), ['check_item_ids' => [$items[0]['id']]])->assertStatus(422);
@@ -211,8 +213,8 @@ class OrderFlowTest extends NoarTestCase
 
         $split = $this->postJson($this->b("/checks/{$check->id}/split"), ['check_item_ids' => [$items[0]['id']]])->assertCreated();
         $newId = $split->json('new_check.id');
-        $this->assertSame(3180, $split->json('new_check.total_cents'));
-        $this->assertSame(1990, $split->json('check.total_cents'));
+        $this->assertSame(2000, $split->json('new_check.total_cents'));
+        $this->assertSame(1750, $split->json('check.total_cents'));
 
         $this->postJson($this->b("/checks/{$newId}/payments"), ['method' => 'card', 'mode' => 'amount', 'amount_cents' => 1000], ['Idempotency-Key' => 'p1'])->assertCreated();
         // cannot merge a check that already has payments

@@ -1,12 +1,12 @@
 # NOAR RestaurantOS — local demo
 
 Multi-tenant restaurant system with **NOAR BAR & DINNER** as the seeded reference restaurant:
-guest QR menu (rotating table), POS, Kitchen display, Bar display, Waiter mobile portal, Admin
+guest QR menu, POS, Kitchen display, Bar display, Waiter mobile portal, Admin
 (dashboard, floor-plan editor, menu, stock, staff, QR codes, reports and audit), onboarding and platform admin.
 
 > **Local demonstration only.** Payments are **simulated**: no bank, card terminal or fiscal device is
-> involved, and nothing here is certified for live sales. Menu items, prices and nutrition values are
-> illustrative demo data, not NOAR's verified menu.
+> involved, and nothing here is certified for live sales. The menu and prices come from NOAR's public Wolt page (see
+> “Menu & photos”); staff, tables, stock and order history are demo data.
 
 ## Stack
 
@@ -55,16 +55,17 @@ websockets are proxied through ports 3000 and 5173; the phone also needs port 80
 (polling still works without it). If it doesn't load, allow ports 3000, 5173 and 8080 in your firewall.
 Never expose these dev servers to the internet.
 
-## Real dish photos
-The table plates show real photos as soon as a product has one. Until then a drawn placeholder plate is shown.
-- **One dish:** Admin → Меню → product → *Качи снимка* (JPG/PNG/WebP, square top-down shot, ≥ 300 px).
-- **Bulk:** `php artisan noar:import-photos --list` prints the expected file names. Put the files in a folder and run
-  `php artisan noar:import-photos /path/to/folder`. Files placed in `backend/storage/app/demo-photos/` are
-  attached automatically on every `noar:reset`.
-- **Table wood:** put a top-down wood photo at `apps/qr-menu/public/table/wood.jpg` and set
-  `NEXT_PUBLIC_TABLE_TEXTURE=/table/wood.jpg` in `apps/qr-menu/.env.local`.
+## Menu & photos
+The NOAR menu (categories, dishes, prices, photos) is imported from NOAR's public Wolt page:
 
-Use only photos you are licensed to use.
+```bash
+python3 scripts/import-wolt-menu.py        # → backend/database/seeders/data/noar-menu.json + seeders/photos/*.jpg
+cd backend && php artisan noar:reset       # loads it into MySQL
+```
+
+Wolt lists no allergens or nutrition values, so none are shown or invented. Add them per dish in
+Admin → Меню. Photos can also be replaced there (*Качи снимка*) or in bulk with
+`php artisan noar:import-photos <folder>` (`--list` prints the expected file names).
 
 ## Tests
 

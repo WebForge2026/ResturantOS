@@ -1,0 +1,1000 @@
+{
+ "source": "https://wolt.com/bg/bgr/blagoevgrad/restaurant/noar-bar-diner",
+ "currency": "EUR",
+ "categories": [
+  {
+   "name": "Закуски",
+   "slug": "zakuski",
+   "sort": 0,
+   "station": "hot",
+   "products": [
+    {
+     "name": "Клуб сандвич с пилешко филе",
+     "description": "",
+     "portion": "1 Бр",
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "klub-sandvich-s-pileshko-file.jpg",
+     "source_id": "ad6b1d04ef6e125f1df3f148"
+    },
+    {
+     "name": "Тортила",
+     "description": "",
+     "portion": "300г",
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "tortila.jpg",
+     "source_id": "94ec09e415f69636aad7692d"
+    },
+    {
+     "name": "Сандвич с шунка и кашкавал (2бр)",
+     "description": "",
+     "portion": "2бр.",
+     "price_cents": 700,
+     "vat_rate_bps": 2000,
+     "photo": "sandvich-s-shunka-i-kashkaval-2br.jpg",
+     "source_id": "b69830f21defe72dc7a35c1c"
+    },
+    {
+     "name": "Сандвич с луканка и кашкавал (2бр)",
+     "description": "",
+     "portion": "2бр.",
+     "price_cents": 750,
+     "vat_rate_bps": 2000,
+     "photo": "sandvich-s-lukanka-i-kashkaval-2br.jpg",
+     "source_id": "17253b05508771eab8dcf542"
+    },
+    {
+     "name": "Бургер телешки",
+     "description": "телешка кайма, бекон, картофки, кисели краставички, чедър, домат, марула, яйце, лук (кетчуп и майонеза отстрани)",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "burger-teleshki.jpg",
+     "source_id": "a546bd5a078fd05b0acfe242"
+    },
+    {
+     "name": "Бургер пилешки",
+     "description": "пилешко панирано филе, картофки, кисели краставички, чедър, домат, маруля, яйце",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "burger-pileshki.jpg",
+     "source_id": "24409af2019111e9c9d7ad42"
+    },
+    {
+     "name": "Пържени филии (2бр)",
+     "description": "",
+     "portion": "2бр.",
+     "price_cents": 650,
+     "vat_rate_bps": 2000,
+     "photo": "parzheni-filii-2br.jpg",
+     "source_id": "87a59b14dd9fd2bf6b98b441"
+    }
+   ]
+  },
+  {
+   "name": "Салати",
+   "slug": "salati",
+   "sort": 1,
+   "station": "cold",
+   "products": [
+    {
+     "name": "Салата Авокадо",
+     "description": "авокадо, чери домати, бейби моцарела, босилек, песто, кашу, дресинг 0,350 г.",
+     "portion": "0,350 г.",
+     "price_cents": 1350,
+     "vat_rate_bps": 2000,
+     "photo": "salata-avokado.jpg",
+     "source_id": "a18537aa8e7ba6b3dfa95954"
+    },
+    {
+     "name": "Лятна салата с Авокадо",
+     "description": "авокадо, домати, краставици, сирене, маслини, червен лук, крутони, магданоз, босилек 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1350,
+     "vat_rate_bps": 2000,
+     "photo": "lyatna-salata-s-avokado.jpg",
+     "source_id": "3cf4e586e15a7997814eafbf"
+    },
+    {
+     "name": "Цезар",
+     "description": "айсберг, хрупкаво пилешко филе, бекон, чери домати, пармезан, крутони, сос цезар 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1250,
+     "vat_rate_bps": 2000,
+     "photo": "tsezar.jpg",
+     "source_id": "f2da0828ade3f05962353340"
+    },
+    {
+     "name": "Капрезе",
+     "description": "белени домати, моцарела, кедрови ядки, пармезан, домашно босилково песто 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1100,
+     "vat_rate_bps": 2000,
+     "photo": "kapreze.jpg",
+     "source_id": "5ce753afa7e56bb7e6ceccca"
+    },
+    {
+     "name": "Салата с Козе сирене",
+     "description": "микс листни салати с гриловано козе сирене, зелена смокиня, солени орехи, меден дресинг 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1350,
+     "vat_rate_bps": 2000,
+     "photo": "salata-s-koze-sirene.jpg",
+     "source_id": "4461bd3f03cffeb2ce75711a"
+    },
+    {
+     "name": "Гръцка салата",
+     "description": "домати краставици, маслини, лук и мариновано сирене 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1100,
+     "vat_rate_bps": 2000,
+     "photo": "gratska-salata.jpg",
+     "source_id": "e0de0b62af4a6ae100f1423c"
+    },
+    {
+     "name": "Салата с прошуто и пармезан",
+     "description": "микс зелени салати с прошуто, рукола, пармезан и солени орехи 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1250,
+     "vat_rate_bps": 2000,
+     "photo": "salata-s-proshuto-i-parmezan.jpg",
+     "source_id": "ead1ab65d73461a4e852f5cb"
+    },
+    {
+     "name": "Белени домати с мус от сирена",
+     "description": "белени домати с мус от сирена, печена чушка, брускети с маслинова паста 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1050,
+     "vat_rate_bps": 2000,
+     "photo": "beleni-domati-s-mus-ot-sirena.jpg",
+     "source_id": "e7b656af8b7f26bbb66eb33f"
+    },
+    {
+     "name": "Шопска салата",
+     "description": "домати, краставици, чушки, лук, сирене 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1050,
+     "vat_rate_bps": 2000,
+     "photo": "shopska-salata.jpg",
+     "source_id": "93136699c130e11423ab09a8"
+    },
+    {
+     "name": "Млечна салата",
+     "description": "с брускета, цедено мляко, прясна краставица, орехи, копър 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 950,
+     "vat_rate_bps": 2000,
+     "photo": "mlechna-salata.jpg",
+     "source_id": "97ea52ec25582c2aa44d8945"
+    },
+    {
+     "name": "Овчарска салата",
+     "description": "домати, краставици, шунка, яйце, гъби, чушки, сирене,350 г",
+     "portion": "350 г",
+     "price_cents": 1300,
+     "vat_rate_bps": 2000,
+     "photo": "ovcharska-salata.jpg",
+     "source_id": "0b0a5673f3ecc0f7e7278ac9"
+    },
+    {
+     "name": "Зелена салата с краставици и яйце",
+     "description": "маруля, краставици, яйце 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 950,
+     "vat_rate_bps": 2000,
+     "photo": "zelena-salata-s-krastavitsi-i-yaytse.jpg",
+     "source_id": "719dc2b32a5961206a2a3124"
+    }
+   ]
+  },
+  {
+   "name": "Предястия",
+   "slug": "predyastiya",
+   "sort": 2,
+   "station": "hot",
+   "products": [
+    {
+     "name": "Пилешки хапки с млечен сос 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "pileshki-hapki-s-mlechen-sos-0-300-g.jpg",
+     "source_id": "03e971f3669f63dea4f43a99"
+    },
+    {
+     "name": "Пилешки сърца",
+     "description": "",
+     "portion": "300 Г",
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "pileshki-sartsa.jpg",
+     "source_id": "184620d8602e630e99296bd8"
+    },
+    {
+     "name": "Пилешки хапки с корнфлейкс и млечен сос 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "pileshki-hapki-s-kornfleyks-i-mlechen-sos-0-300-g.jpg",
+     "source_id": "1769278d99ad8621d7b4168c"
+    },
+    {
+     "name": "Пилешки крилца с BBQ сос 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "pileshki-kriltsa-s-bbq-sos-0-300-g.jpg",
+     "source_id": "65a4475a526ec1cce37142e7"
+    },
+    {
+     "name": "Пилешки дробчета 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "pileshki-drobcheta-0-300-g.jpg",
+     "source_id": "3e90c1bc41a80c4c67f72206"
+    },
+    {
+     "name": "Свински език в масло 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "svinski-ezik-v-maslo-0-300-g.jpg",
+     "source_id": "b9e68a179e5702fc07d5649b"
+    },
+    {
+     "name": "Броколи пане с млечен сос 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "brokoli-pane-s-mlechen-sos-0-300-g.jpg",
+     "source_id": "305db18ee4e5c284c84c8a2f"
+    },
+    {
+     "name": "Трюфел картофки с пармиджано, сос айоли и магданоз 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "tryufel-kartofki-s-parmidzhano-sos-ayoli-i-magdanoz-0-300-g.jpg",
+     "source_id": "7998c2ab6f2e5db1a186c5a1"
+    },
+    {
+     "name": "Пържени картофи 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 500,
+     "vat_rate_bps": 2000,
+     "photo": "parzheni-kartofi-0-300-g.jpg",
+     "source_id": "8411b9e5d138ba414fb6c9de"
+    },
+    {
+     "name": "Моцарела стикс със сладко чили 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "motsarela-stiks-sas-sladko-chili-0-300-g.jpg",
+     "source_id": "2104d6eebd8bf609cd848f00"
+    },
+    {
+     "name": "Гриловани зеленчуци с мус от сирена 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "grilovani-zelenchutsi-s-mus-ot-sirena-0-300-g.jpg",
+     "source_id": "71eeca307c283ab6991ee98f"
+    },
+    {
+     "name": "Топени сиренца с корнфлейкс и сладко от боровинки 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "topeni-sirentsa-s-kornfleyks-i-sladko-ot-borovinki-0-300-g.jpg",
+     "source_id": "538cd73c053ee766c9dea7e3"
+    },
+    {
+     "name": "Панирани кашкавалчета 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "panirani-kashkavalcheta-0-300-g.jpg",
+     "source_id": "134ed029f23361c04ffa09ec"
+    },
+    {
+     "name": "Пилешки парти бутчета с картофки и BBQ сос 0,400 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "pileshki-parti-butcheta-s-kartofki-i-bbq-sos-0-400-g.jpg",
+     "source_id": "af70001a0c4d81677e4e2ec0"
+    },
+    {
+     "name": "Пържени картофи със сирене 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 550,
+     "vat_rate_bps": 2000,
+     "photo": "parzheni-kartofi-sas-sirene-0-300-g.jpg",
+     "source_id": "b45fb11cb9ea6ce2cdfcc76b"
+    },
+    {
+     "name": "Сотирани картофи 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 600,
+     "vat_rate_bps": 2000,
+     "photo": "sotirani-kartofi-0-300-g.jpg",
+     "source_id": "1e85d229034a9374b488eb17"
+    },
+    {
+     "name": "Тиквички по гръцки с млечен сос 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "tikvichki-po-gratski-s-mlechen-sos-0-300-g.jpg",
+     "source_id": "7a033fd70e508788dad2b8cd"
+    },
+    {
+     "name": "Микс сиренца с корнфлейкс и сладко от боровинки 0,300 г",
+     "description": "",
+     "portion": null,
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "miks-sirentsa-s-kornfleyks-i-sladko-ot-borovinki-0-300-g.jpg",
+     "source_id": "3b613781db176d40267281d1"
+    }
+   ]
+  },
+  {
+   "name": "Пица",
+   "slug": "pitsa",
+   "sort": 3,
+   "station": "hot",
+   "products": [
+    {
+     "name": "Ноар",
+     "description": "пилешко пушено филе, бекон, прясна чушка, яйце, гъби, маслини, кашкавал, доматен сос 32 см",
+     "portion": "32 см",
+     "price_cents": 1200,
+     "vat_rate_bps": 2000,
+     "photo": "noar.jpg",
+     "source_id": "1a8fd4d0c29db330be93033f"
+    },
+    {
+     "name": "Маргарита",
+     "description": "доматен сос, кашкавал, босилек 32см",
+     "portion": "32см",
+     "price_cents": 850,
+     "vat_rate_bps": 2000,
+     "photo": "margarita.jpg",
+     "source_id": "8c3a2203527e56591524bf10"
+    },
+    {
+     "name": "Прошуто",
+     "description": "прошуто, моцарела, чери домати, рукола, kашкавал, доматен сос 32см",
+     "portion": "32см",
+     "price_cents": 1150,
+     "vat_rate_bps": 2000,
+     "photo": "proshuto.jpg",
+     "source_id": "9cdbd1ae52a88fa5f41530be"
+    },
+    {
+     "name": "Капричоза",
+     "description": "шунка, маслини, чушки, гъби, кашкавал, доматен сос 32см",
+     "portion": "32см",
+     "price_cents": 1200,
+     "vat_rate_bps": 2000,
+     "photo": "kaprichoza.jpg",
+     "source_id": "5821a2745e55eb3ce5daa4de"
+    },
+    {
+     "name": "Поло",
+     "description": "пилешко филе, кисели краставички, царевица, кашкавал, доматен сос 32см",
+     "portion": "32см",
+     "price_cents": 1150,
+     "vat_rate_bps": 2000,
+     "photo": "polo.jpg",
+     "source_id": "cd59d901d377adfa40127f11"
+    },
+    {
+     "name": "BBQ Пица",
+     "description": "bbq coc, бекон, пилешко филе, гъби, червен лук, кашкавал, доматен сос 32см",
+     "portion": "32см",
+     "price_cents": 1200,
+     "vat_rate_bps": 2000,
+     "photo": "bbq-pitsa.jpg",
+     "source_id": "23b13d8426d78f71aaec9299"
+    },
+    {
+     "name": "Четири сирена",
+     "description": "моцарела, синьо сирене, тоnено сирене, кашкавал, доматен сос 32см",
+     "portion": "32см",
+     "price_cents": 1150,
+     "vat_rate_bps": 2000,
+     "photo": "chetiri-sirena.jpg",
+     "source_id": "e275e1a92989c91cf5cf5513"
+    },
+    {
+     "name": "Пеперони",
+     "description": "италиански лют колбас, кашкавал, доматен сос 32см",
+     "portion": "32см",
+     "price_cents": 1200,
+     "vat_rate_bps": 2000,
+     "photo": "peperoni.jpg",
+     "source_id": "da2654b37931839853475ea0"
+    },
+    {
+     "name": "Детска пица",
+     "description": "шунка, кисели краставички, маслини, царевица, кашкавал, доматен сос 32см",
+     "portion": "32см",
+     "price_cents": 1150,
+     "vat_rate_bps": 2000,
+     "photo": "detska-pitsa.jpg",
+     "source_id": "fca74562e5eea2e2892360cf"
+    },
+    {
+     "name": "Пица Карбонара",
+     "description": "бекон, гъби, кашкавал, сметана",
+     "portion": null,
+     "price_cents": 1200,
+     "vat_rate_bps": 2000,
+     "photo": "pitsa-karbonara.jpg",
+     "source_id": "6137592f8cd117d13890ffc8"
+    },
+    {
+     "name": "Пастърмалия със свинско месо",
+     "description": "",
+     "portion": null,
+     "price_cents": 1400,
+     "vat_rate_bps": 2000,
+     "photo": "pastarmaliya-sas-svinsko-meso.jpg",
+     "source_id": "740b39d30e59138111298f04"
+    }
+   ]
+  },
+  {
+   "name": "Пърленки",
+   "slug": "parlenki",
+   "sort": 4,
+   "station": "hot",
+   "products": [
+    {
+     "name": "Комбинирана пърленка с кашкавал и сирене 26 см",
+     "description": "",
+     "portion": null,
+     "price_cents": 650,
+     "vat_rate_bps": 2000,
+     "photo": "kombinirana-parlenka-s-kashkaval-i-sirene-26-sm.jpg",
+     "source_id": "1235d682bc23db0b9a2fae9d"
+    },
+    {
+     "name": "Домашен хляб 1 бр",
+     "description": "",
+     "portion": null,
+     "price_cents": 550,
+     "vat_rate_bps": 2000,
+     "photo": "domashen-hlyab-1-br.jpg",
+     "source_id": "ef679049673f72a46aa7e0d9"
+    },
+    {
+     "name": "Пърленка със зехтин и чесън 26 см",
+     "description": "",
+     "portion": null,
+     "price_cents": 550,
+     "vat_rate_bps": 2000,
+     "photo": "parlenka-sas-zehtin-i-chesan-26-sm.jpg",
+     "source_id": "d442141ae42d4a8c0f102665"
+    }
+   ]
+  },
+  {
+   "name": "Брускети",
+   "slug": "brusketi",
+   "sort": 5,
+   "station": "cold",
+   "products": [
+    {
+     "name": "Брускети смокини (8бр)",
+     "description": "брускети с мус от сирена, сладко от зелени смокини и рукола",
+     "portion": null,
+     "price_cents": 850,
+     "vat_rate_bps": 2000,
+     "photo": "brusketi-smokini-8br.jpg",
+     "source_id": "e31e0da28698b965227f9dcb"
+    },
+    {
+     "name": "Брускети със Сьомга (8бр)",
+     "description": "брускети със сьомга и мус от сирена",
+     "portion": null,
+     "price_cents": 850,
+     "vat_rate_bps": 2000,
+     "photo": "brusketi-sas-syomga-8br.jpg",
+     "source_id": "298c5000f5028863c91ed9d2"
+    },
+    {
+     "name": "Брускети с домати и песто (8бр)",
+     "description": "брускети с домататено конкасе, маслини и босилково песто",
+     "portion": null,
+     "price_cents": 850,
+     "vat_rate_bps": 2000,
+     "photo": "brusketi-s-domati-i-pesto-8br.jpg",
+     "source_id": "f17d5d8873efaed7c8221aed"
+    },
+    {
+     "name": "Брускети с прошуто (8бр)",
+     "description": "брускети с прошуто и мус от сирена",
+     "portion": null,
+     "price_cents": 850,
+     "vat_rate_bps": 2000,
+     "photo": "brusketi-s-proshuto-8br.jpg",
+     "source_id": "510b81718a52437f09044de2"
+    },
+    {
+     "name": "Брускети микс 16 броя",
+     "description": "брускети смокини 4 бр, брускети с домати и песто 4 бр, брускети със сьомга 4 бр, брускети с прошуто 4 бр",
+     "portion": "4 бр",
+     "price_cents": 1900,
+     "vat_rate_bps": 2000,
+     "photo": "brusketi-miks-16-broya.jpg",
+     "source_id": "1c804f86969fd62316543764"
+    }
+   ]
+  },
+  {
+   "name": "Паста",
+   "slug": "pasta",
+   "sort": 6,
+   "station": "hot",
+   "products": [
+    {
+     "name": "Пелмени с пиле",
+     "description": "пелмени пълни с пилешко месо, пармезан, сметана 0,300 г",
+     "portion": "0,300 г",
+     "price_cents": 1050,
+     "vat_rate_bps": 2000,
+     "photo": "pelmeni-s-pile.jpg",
+     "source_id": "6aad3aa1347a134683d22b9f"
+    },
+    {
+     "name": "Паста Болонезе",
+     "description": "спагети, кайма, доматен сос 0,300 г",
+     "portion": "0,300 г",
+     "price_cents": 1050,
+     "vat_rate_bps": 2000,
+     "photo": "pasta-boloneze.jpg",
+     "source_id": "46b8cd372664020fb46cbd82"
+    },
+    {
+     "name": "Паста Карбонара",
+     "description": "Спагети, бекон, лук, гъби, сметана 0,300 г",
+     "portion": "0,300 г",
+     "price_cents": 1050,
+     "vat_rate_bps": 2000,
+     "photo": "pasta-karbonara.jpg",
+     "source_id": "cdb7f4c855f41c997131a35d"
+    }
+   ]
+  },
+  {
+   "name": "Ризото",
+   "slug": "rizoto",
+   "sort": 7,
+   "station": "hot",
+   "products": [
+    {
+     "name": "Ризото с пиле",
+     "description": "Ориз Арборио, пилешко месо, пармезан, сметана",
+     "portion": null,
+     "price_cents": 1050,
+     "vat_rate_bps": 2000,
+     "photo": "rizoto-s-pile.jpg",
+     "source_id": "81d6a458e11e1d8a54495e04"
+    },
+    {
+     "name": "Ризото с телешко и гъби",
+     "description": "ориз Арборио, телешко месо, горски гъби, пармезан, сметана 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1050,
+     "vat_rate_bps": 2000,
+     "photo": "rizoto-s-teleshko-i-gabi.jpg",
+     "source_id": "b062569c37d19a3fd69894dd"
+    },
+    {
+     "name": "Ризото с тиквички",
+     "description": "Ориз Арборио, тиквички, пармезан, сметана,350 г",
+     "portion": "350 г",
+     "price_cents": 1050,
+     "vat_rate_bps": 2000,
+     "photo": "rizoto-s-tikvichki.jpg",
+     "source_id": "a2bd2384b03ccd58bfc12f23"
+    }
+   ]
+  },
+  {
+   "name": "Основни ястия",
+   "slug": "osnovni-yastiya",
+   "sort": 8,
+   "station": "hot",
+   "products": [
+    {
+     "name": "Свинска пържола",
+     "description": "",
+     "portion": "250г",
+     "price_cents": 1150,
+     "vat_rate_bps": 2000,
+     "photo": "svinska-parzhola.jpg",
+     "source_id": "45e11c45b09f38188d1ddb7d"
+    },
+    {
+     "name": "Пилешка пържола",
+     "description": "",
+     "portion": "250г",
+     "price_cents": 1150,
+     "vat_rate_bps": 2000,
+     "photo": "pileshka-parzhola.jpg",
+     "source_id": "0be90eb7ac04db29b0370041"
+    },
+    {
+     "name": "Свинско шишче",
+     "description": "",
+     "portion": "150г",
+     "price_cents": 700,
+     "vat_rate_bps": 2000,
+     "photo": "svinsko-shishche.jpg",
+     "source_id": "3ec28550dd616e72451d8c24"
+    },
+    {
+     "name": "Пилешко шишче",
+     "description": "",
+     "portion": "150г",
+     "price_cents": 700,
+     "vat_rate_bps": 2000,
+     "photo": "pileshko-shishche.jpg",
+     "source_id": "a06dcc1d345769b089cfe926"
+    },
+    {
+     "name": "Кюфте",
+     "description": "",
+     "portion": "1бр.",
+     "price_cents": 250,
+     "vat_rate_bps": 2000,
+     "photo": "kyufte.jpg",
+     "source_id": "492fedcd0f06e09e50fa918d"
+    },
+    {
+     "name": "Кебапче",
+     "description": "",
+     "portion": "1бр.",
+     "price_cents": 250,
+     "vat_rate_bps": 2000,
+     "photo": "kebapche.jpg",
+     "source_id": "62585c97d9ad538c38746968"
+    },
+    {
+     "name": "Телешки бон филенца",
+     "description": "Телешки бон филенца, с гриловани зеленчуци, розмарин и чесън",
+     "portion": null,
+     "price_cents": 1850,
+     "vat_rate_bps": 2000,
+     "photo": "teleshki-bon-filentsa.jpg",
+     "source_id": "5a047961f79472814423ca45"
+    },
+    {
+     "name": "Телешки кюфтенца на скара",
+     "description": "Телешки кюфтенца на скара със сотирани картофи и микс зелена салата",
+     "portion": null,
+     "price_cents": 1400,
+     "vat_rate_bps": 2000,
+     "photo": "teleshki-kyuftentsa-na-skara.jpg",
+     "source_id": "4d6ea77858dd150790947b23"
+    },
+    {
+     "name": "Шницел Миланезе",
+     "description": "Пилешко филе в хрупкава панировка, картофки розмарин 0.350 г",
+     "portion": "0.350 г",
+     "price_cents": 1400,
+     "vat_rate_bps": 2000,
+     "photo": "shnitsel-milaneze.jpg",
+     "source_id": "24bae52afa34d92088e7b096"
+    },
+    {
+     "name": "Свински ребра",
+     "description": "Свински ребра запечени, печен картоф с билки, сос айоли 0,400 г",
+     "portion": "0,400 г",
+     "price_cents": 1450,
+     "vat_rate_bps": 2000,
+     "photo": "svinski-rebra.jpg",
+     "source_id": "4cf7156a40388f35e677cf3d"
+    },
+    {
+     "name": "Пилешки филенца с пармезанова коричка с гриловани зеленчуци",
+     "description": "",
+     "portion": "300г",
+     "price_cents": 1400,
+     "vat_rate_bps": 2000,
+     "photo": "pileshki-filentsa-s-parmezanova-korichka-s-grilovani-zelenchutsi.jpg",
+     "source_id": "a00eb22a7210fb70f29090f6"
+    },
+    {
+     "name": "Италианско Салсиче на тиган",
+     "description": "Италианска наденица салсиче, трюфел картофки с пармезан, магданоз и сос айоли 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1400,
+     "vat_rate_bps": 2000,
+     "photo": "italiansko-salsiche-na-tigan.jpg",
+     "source_id": "c4d12fbe04a25da4a1ae40e7"
+    },
+    {
+     "name": "Пилешки Хепи късчета",
+     "description": "Пилешко филе, гъби, кашкавал, картофено пюре, соев сос 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1400,
+     "vat_rate_bps": 2000,
+     "photo": "pileshki-hepi-kascheta.jpg",
+     "source_id": "1e0c04dbd79a3f63bfdaf3f5"
+    }
+   ]
+  },
+  {
+   "name": "Супи",
+   "slug": "supi",
+   "sort": 9,
+   "station": "hot",
+   "products": [
+    {
+     "name": "Пилешка супа",
+     "description": "",
+     "portion": "300мл",
+     "price_cents": 400,
+     "vat_rate_bps": 2000,
+     "photo": "pileshka-supa.jpg",
+     "source_id": "93fdbb1d1e39afd999057961"
+    },
+    {
+     "name": "Картофена крем супа",
+     "description": "",
+     "portion": "300мл",
+     "price_cents": 400,
+     "vat_rate_bps": 2000,
+     "photo": "kartofena-krem-supa.jpg",
+     "source_id": "e465ed961c60df321db57901"
+    },
+    {
+     "name": "Крем супа от броколи",
+     "description": "",
+     "portion": "300мл",
+     "price_cents": 400,
+     "vat_rate_bps": 2000,
+     "photo": "krem-supa-ot-brokoli.jpg",
+     "source_id": "d7cc0715f3edcd73f3978f8e"
+    },
+    {
+     "name": "Tapaтор",
+     "description": "",
+     "portion": "300мл",
+     "price_cents": 350,
+     "vat_rate_bps": 2000,
+     "photo": "tapator.jpg",
+     "source_id": "92af0c1eb165094123f87576"
+    }
+   ]
+  },
+  {
+   "name": "Aqua menu",
+   "slug": "aqua-menu",
+   "sort": 10,
+   "station": "hot",
+   "products": [
+    {
+     "name": "Филе от Лаврак",
+     "description": "Филе от Лаврак, сотирани чери домати, каперси, маслини, картофено пюре, босилек 0,350 г",
+     "portion": "0,350 г",
+     "price_cents": 1850,
+     "vat_rate_bps": 2000,
+     "photo": "file-ot-lavrak.jpg",
+     "source_id": "f773b936c1040e03e607836b"
+    },
+    {
+     "name": "Бяла риба с пармезанова коричка и микс зелени салатки",
+     "description": "",
+     "portion": "0,350 г",
+     "price_cents": 1400,
+     "vat_rate_bps": 2000,
+     "photo": "byala-riba-s-parmezanova-korichka-i-miks-zeleni-salatki.jpg",
+     "source_id": "51255868c81f879d460ca530"
+    },
+    {
+     "name": "Филе от Сьомга",
+     "description": "Филе от Сьомга с авокаво, домат, маслини, песто 0,400 г",
+     "portion": "0,400 г",
+     "price_cents": 2000,
+     "vat_rate_bps": 2000,
+     "photo": "file-ot-syomga.jpg",
+     "source_id": "d36429834bc4d7bba91d4266"
+    },
+    {
+     "name": "Пъстърва",
+     "description": "",
+     "portion": "1бр.",
+     "price_cents": 1350,
+     "vat_rate_bps": 2000,
+     "photo": "pastarva.jpg",
+     "source_id": "11360ac7ff6ef7a2103f091b"
+    },
+    {
+     "name": "Калмари хрупкави",
+     "description": "",
+     "portion": "300 г",
+     "price_cents": 1000,
+     "vat_rate_bps": 2000,
+     "photo": "kalmari-hrupkavi.jpg",
+     "source_id": "d073b3115537f43a44f86b68"
+    },
+    {
+     "name": "Цаца",
+     "description": "",
+     "portion": "250г",
+     "price_cents": 600,
+     "vat_rate_bps": 2000,
+     "photo": "tsatsa.jpg",
+     "source_id": "b8ab0e2ebae8dc2f74691dea"
+    }
+   ]
+  },
+  {
+   "name": "Десерти",
+   "slug": "deserti",
+   "sort": 11,
+   "station": "dessert",
+   "products": [
+    {
+     "name": "Чийзкейк орео",
+     "description": "с шоколад Милка, маскарпоне и бисквити Орео 1бр.",
+     "portion": "1бр.",
+     "price_cents": 700,
+     "vat_rate_bps": 2000,
+     "photo": "chiyzkeyk-oreo.jpg",
+     "source_id": "1d19195c2e6b3cac681afba8"
+    },
+    {
+     "name": "Палачинка със сладко от боровинки (2бр)",
+     "description": "",
+     "portion": "1бр.",
+     "price_cents": 500,
+     "vat_rate_bps": 2000,
+     "photo": "palachinka-sas-sladko-ot-borovinki-2br.jpg",
+     "source_id": "b0529c9ad8399a8e01ad3b10"
+    },
+    {
+     "name": "Палачинка Ноар",
+     "description": "С банан, шоколад и сладолед 2 бр",
+     "portion": "2 бр",
+     "price_cents": 700,
+     "vat_rate_bps": 2000,
+     "photo": "palachinka-noar.jpg",
+     "source_id": "e7fd0e76c4fa92d00cbb9812"
+    },
+    {
+     "name": "Палачинка с шоколад (2бр)",
+     "description": "",
+     "portion": "2бр.",
+     "price_cents": 500,
+     "vat_rate_bps": 2000,
+     "photo": "palachinka-s-shokolad-2br.jpg",
+     "source_id": "b25b59523b1e639547bd33ea"
+    },
+    {
+     "name": "Шоколадово суфле",
+     "description": "",
+     "portion": "1бр",
+     "price_cents": 700,
+     "vat_rate_bps": 2000,
+     "photo": "shokoladovo-sufle.jpg",
+     "source_id": "5a86a55d868b9be7e7f079e9"
+    },
+    {
+     "name": "Гофрета със шоколад",
+     "description": "ягода, банан, сладолед",
+     "portion": null,
+     "price_cents": 700,
+     "vat_rate_bps": 2000,
+     "photo": "gofreta-sas-shokolad.jpg",
+     "source_id": "33214b33b32b647420bf6e32"
+    }
+   ]
+  },
+  {
+   "name": "Добавки",
+   "slug": "dobavki",
+   "sort": 12,
+   "station": "cold",
+   "products": [
+    {
+     "name": "Кетчуп",
+     "description": "",
+     "portion": null,
+     "price_cents": 200,
+     "vat_rate_bps": 2000,
+     "photo": "ketchup.jpg",
+     "source_id": "90bcd09ba5d82672e2543ed2"
+    },
+    {
+     "name": "Майонеза",
+     "description": "",
+     "portion": null,
+     "price_cents": 200,
+     "vat_rate_bps": 2000,
+     "photo": "mayoneza.jpg",
+     "source_id": "429f621517bc9038408586b6"
+    },
+    {
+     "name": "Млечен сос",
+     "description": "",
+     "portion": null,
+     "price_cents": 200,
+     "vat_rate_bps": 2000,
+     "photo": "mlechen-sos.jpg",
+     "source_id": "0e0db8b77ceef3c7698cc4ff"
+    },
+    {
+     "name": "Барбекю сос",
+     "description": "",
+     "portion": null,
+     "price_cents": 200,
+     "vat_rate_bps": 2000,
+     "photo": "barbekyu-sos.jpg",
+     "source_id": "db8c60a58b66b9506620ec47"
+    }
+   ]
+  },
+  {
+   "name": "Напитки",
+   "slug": "napitki",
+   "sort": 13,
+   "station": "bar",
+   "products": [
+    {
+     "name": "Coca-Cola Original Taste 1л",
+     "description": "Coca-Cola ORIGINAL TASTE, вкусна и освежаваща газирана напитка с отличен вкус, създадена през 1886 г. Кока Кола - Щастие в бутилка;  създадена за споделяне.",
+     "portion": "1886 г.",
+     "price_cents": 250,
+     "vat_rate_bps": 2000,
+     "photo": "coca-cola-original-taste-1l.jpg",
+     "source_id": "9e8e036a1c232d31be30a132"
+    },
+    {
+     "name": "Бира Шуменско кен",
+     "description": "",
+     "portion": "500 мл",
+     "price_cents": 250,
+     "vat_rate_bps": 2000,
+     "photo": "bira-shumensko-ken.jpg",
+     "source_id": "4855d1a62f4dca7d75237aba"
+    },
+    {
+     "name": "Самърсби",
+     "description": "",
+     "portion": null,
+     "price_cents": 350,
+     "vat_rate_bps": 2000,
+     "photo": "samarsbi.jpg",
+     "source_id": "347f8035dd5d87de98ea0dc9"
+    }
+   ]
+  }
+ ]
+}

@@ -21,6 +21,17 @@ const rand = (seed: number) => {
 };
 
 const PlateArtImpl = ({ art, imageUrl, label, seed }: Props) => {
+  if (imageUrl) {
+    // Real photo of the dish (plate cut out of the studio backdrop, transparent PNG/WebP).
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={imageUrl} alt={label} draggable={false} loading="lazy" decoding="async" className="pointer-events-none h-full w-full select-none rounded-2xl object-cover" />;
+  }
+  return <DrawnPlate art={art} label={label} seed={seed} />;
+};
+
+/** Drawn placeholder plate for products without a photo. */
+const DrawnPlate = ({ art, label, seed }: Omit<Props, 'imageUrl'>) => {
+  const imageUrl: string | null = null;
   const uid = useId().replace(/:/g, '');
   const style = art?.style ?? 'salad';
   const base = art?.base ?? '#6b8f3a';

@@ -11,7 +11,7 @@ import { pad2 } from '@/lib/labels';
 import { store } from '@/lib/storage';
 import { useLiveSession } from '@/lib/useLiveSession';
 import { useReducedMotion } from '@/lib/useMedia';
-import { TurntableMenu } from './TurntableMenu';
+import { MenuList } from './MenuList';
 import { OrderDrawer } from './OrderDrawer';
 import { OrderStatusTracker } from './OrderStatusTracker';
 import { MagneticButton } from './MagneticButton';
@@ -160,7 +160,6 @@ export function QrApp() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const quantityFor = useCallback((key: string) => lines.find((l) => l.key === key)?.quantity ?? 0, [lines]);
 
   // ---------------------------------------------------------------- render
   if (loadError) return <FullscreenMessage title="Нещо се обърка" text={loadError} />;
@@ -190,7 +189,7 @@ export function QrApp() {
         }}
       />
 
-      <main className={`relative mx-auto max-w-[1180px] px-5 pb-36 ${live.state?.orders.length ? 'pt-16' : 'pt-6'} sm:px-6`}>
+      <main className={`relative mx-auto max-w-[1180px] px-5 pb-36 ${live.state?.orders.length ? 'pt-16' : 'pt-6'} sm:px-6`} style={{ ['--pill-h' as string]: live.state?.orders.length ? '58px' : '0px' }}>
         <Header
           brand={ctx.restaurant.name}
           tableTitle={tableTitle}
@@ -200,14 +199,12 @@ export function QrApp() {
           onSwitch={(n) => router.replace(`/?table=${n}`)}
         />
 
-        <div ref={menuRef} className="scroll-mt-20 pt-5">
-          <TurntableMenu
+        <div ref={menuRef} className="scroll-mt-20 pt-4">
+          <MenuList
             categories={ctx.menu.categories}
-            activeCategoryId={activeCat}
-            onCategoryChange={setActiveCat}
             showBgn={ctx.restaurant.show_bgn}
             bgnRate={ctx.restaurant.bgn_rate}
-            quantityFor={quantityFor}
+            lines={lines}
             onAdd={(product, modifierIds) => dispatch({ type: 'add', product: productIndex.get(product.id) ?? product, modifierIds })}
             onInc={(key) => dispatch({ type: 'inc', key })}
             onDec={(key) => dispatch({ type: 'dec', key })}

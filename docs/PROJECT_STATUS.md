@@ -12,8 +12,8 @@
   - service requests (bill/waiter); idempotency keys; rate limiting; audit log;
   - stock ledger (reserve → consume on ready → release on cancel, dedupe-safe), suppliers, receipts, recipes, reorder rule;
   - reports and CSV export; platform admin (suspend, feature flags); Reverb broadcasting after commit.
-- **Seed:** NOAR with 15 tables (indoor + terrace), 8 staff roles, 20 illustrative dishes in the 5 required categories, recipes, stock, and 6 days of history created through the real services. A second tenant (Бистро Пловдив) is seeded for isolation tests.
-- **QR menu:** redesigned to the owner's reference video — light linen/walnut palette, serif typography, a rotating round wooden table with dishes on the rim (single GPU-layer rotation), close-up view, spec card, cart drawer, live status via Reverb with polling fallback.
+- **Seed:** NOAR's real menu imported from Wolt (14 categories, 98 dishes with prices and photos; `scripts/import-wolt-menu.py`). Also seeded: 15 tables (indoor + terrace), 8 staff roles, recipes for key dishes, stock, and 6 days of history created through the real services. A second tenant (Бистро Пловдив) is seeded for isolation tests.
+- **QR menu:** standard clean menu (owner request: rotating table removed) — light linen palette, sticky search and categories, photo cards with a morphing +/stepper button, dish detail sheet, cart drawer, live status via Reverb with polling fallback.
 - **Staff app:**
   - **POS:** live table map, session panel, manual orders, accept/serve, transfer, split/merge, discount, void, checkout with split payments, receipt preview, shifts.
   - **Kitchen/Bar:** per-item status, station filter, timers, opt-in sound.
@@ -24,12 +24,12 @@
 
 ## Tests actually run (latest run)
 - `php artisan test`: **10 passed, 143 assertions**. Covers the full table-8 scenario, manual accept, idempotency, modifier validation, cancel/stock release, discount permissions, split/merge, tenant isolation, role permissions, auth and suspension.
-- `pnpm test` in `e2e/` (Playwright, real browsers, stack running): **1 passed**. QR on a phone viewport (swipe + buttons) → POS without refresh → Kitchen/Bar each see only their items → partial readiness → waiter serves → round 2 → bill request → cash payment → table cleared → sales +63,70 € exactly once, beef stock −360 g exactly once, audit entry, foreign tenant gets 404.
+- `pnpm test` in `e2e/` (Playwright, real browsers, stack running): **1 passed**. QR on a phone viewport (card +/stepper, search, category bar, detail sheet) → POS without refresh → Kitchen/Bar each see only their items → partial readiness → waiter serves → round 2 → bill request → cash payment → table cleared → sales +40,00 € exactly once, beef stock −360 g exactly once, audit entry, foreign tenant gets 404.
 - Both frontends type-check (`tsc --noEmit`).
 - **Not run:** production `next build` / `vite build`, Lighthouse/a11y audit, a real physical phone on LAN (only emulated viewports), and the onboarding wizard as an automated test (it was exercised manually through its components).
 
 ## Known limitations / next actions
-1. **Real food photos are not included.** Downloading stock photos was blocked in this environment. Plates show drawn placeholders until photos are uploaded (Admin → Меню → Качи снимка) or imported (`php artisan noar:import-photos`). The same applies to an optional wood photo for the table.
+1. Wolt provides no allergens or nutrition values; they must be entered in Admin (none are invented).
 2. No `contracts/openapi.yaml` yet — `docs/API.md` describes the API.
 3. Email verification is not enforced locally (mail driver `log`).
 4. Stock uses a single location per branch (column `location`); there is no inter-location transfer UI.
