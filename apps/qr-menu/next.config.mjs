@@ -8,7 +8,10 @@ const nextConfig = {
   allowedDevOrigins: ['192.168.*.*', '10.*.*.*', '172.16.*.*', '*.local'],
   async rewrites() {
     // Same-origin API: the phone only needs to reach port 3000.
-    return [{ source: '/api/:path*', destination: `${apiOrigin}/api/:path*` }];
+    return [
+      { source: '/api/:path*', destination: `${apiOrigin}/api/:path*` },
+      { source: '/storage/:path*', destination: `${apiOrigin}/storage/:path*` },
+    ];
   },
 };
 

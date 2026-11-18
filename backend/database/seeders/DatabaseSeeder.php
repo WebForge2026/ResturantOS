@@ -106,12 +106,12 @@ class DatabaseSeeder extends Seeder
         $stock = app(StockService::class);
         $ing = [];
         foreach ([
-            ['Телешка кайма', 'g', 9000, 2000, $sup, 1800], ['Бриош хлебче', 'pcs', 60, 20, $sup, 45000], ['Чедър', 'g', 3000, 600, $sup, 2200],
+            ['Телешка кайма', 'g', 16000, 2000, $sup, 1800], ['Бриош хлебче', 'pcs', 140, 20, $sup, 45000], ['Чедър', 'g', 3000, 600, $sup, 2200],
             ['Пилешко филе', 'g', 6000, 1500, $sup, 1100], ['Салата романа', 'g', 4000, 800, $sup, 600], ['Пармезан', 'g', 2000, 400, $sup, 3500],
-            ['Филе сьомга', 'g', 5000, 1200, $sup, 3800], ['Тесто за пица', 'pcs', 50, 12, $sup, 40000], ['Моцарела', 'g', 6000, 1200, $sup, 1400],
-            ['Доматен сос', 'g', 5000, 1000, $sup, 500], ['Кока-Кола 330 мл', 'pcs', 96, 24, $sup2, 60000], ['Джин', 'ml', 3000, 700, $sup2, 3200],
+            ['Филе сьомга', 'g', 7000, 1200, $sup, 3800], ['Тесто за пица', 'pcs', 140, 12, $sup, 40000], ['Моцарела', 'g', 16000, 1200, $sup, 1400],
+            ['Доматен сос', 'g', 5000, 1000, $sup, 500], ['Кока-Кола 330 мл', 'pcs', 144, 24, $sup2, 60000], ['Джин', 'ml', 3000, 700, $sup2, 3200],
             ['Кампари', 'ml', 2000, 700, $sup2, 3000], ['Червен вермут', 'ml', 2000, 700, $sup2, 2000], ['Водка', 'ml', 3000, 700, $sup2, 2500],
-            ['Еспресо (доза)', 'pcs', 400, 80, $sup2, 30000], ['Лимони', 'pcs', 40, 15, $sup, 25000], ['Рибай', 'g', 6000, 1500, $sup, 6500],
+            ['Еспресо (доза)', 'pcs', 400, 80, $sup2, 30000], ['Лимони', 'pcs', 40, 15, $sup, 25000], ['Рибай', 'g', 9000, 1500, $sup, 6500],
         ] as [$name, $unit, $qty, $min, $s, $cost]) {
             $i = Ingredient::create(['branch_id' => $branch->id, 'supplier_id' => $s->id, 'name' => $name, 'unit' => $unit, 'min_level' => $min, 'reorder_qty' => $min * 2, 'cost_per_unit_millicents' => $cost]);
             $stock->manual($i, 'opening', $qty, 'Начално количество (демо)', null);
@@ -181,6 +181,11 @@ class DatabaseSeeder extends Seeder
             $this->seedHistory($branch, $productsByName, $waiter, $cashier);
         }
 
+        // Real dish photos dropped into storage/app/demo-photos are attached automatically.
+        if (is_dir(storage_path('app/demo-photos'))) {
+            \Illuminate\Support\Facades\Artisan::call('noar:import-photos', ['dir' => storage_path('app/demo-photos')]);
+        }
+
         // ------------------------------------------------------------------ second tenant (isolation tests)
         $org2 = Organization::create(['name' => 'Демо Бистро ЕООД', 'slug' => 'demo-bistro', 'status' => 'active']);
         $b2 = app(BranchProvisioner::class)->createBranch($org2, 'Бистро Пловдив');
@@ -213,8 +218,9 @@ class DatabaseSeeder extends Seeder
             return $lines;
         };
 
+        $today = Carbon::now($branch->timezone)->startOfDay(); // captured before time is mocked
         for ($day = 6; $day >= 1; $day--) {
-            $base = Carbon::now($branch->timezone)->subDays($day)->setTime(12, 0);
+            $base = $today->copy()->subDays($day)->setTime(12, 0);
             Carbon::setTestNow($base->copy()->subMinutes(5)->utc());
             $shift = PosShift::create(['branch_id' => $branch->id, 'opened_by' => $cashier->id, 'opening_float_cents' => 20000, 'opened_at' => now(), 'status' => 'open']);
             $sessions = mt_rand(5, 9);

@@ -1,0 +1,132 @@
+@import 'tailwindcss';
+
+/* NOAR RestaurantOS — operational design system (separate from the guest QR identity). */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme {
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #171412;
+  --surface: #1e1a17;
+  --surface-2: #26211d;
+  --surface-3: #302925;
+  --line: rgb(255 255 255 / 0.08);
+  --line-strong: rgb(255 255 255 / 0.16);
+  --fg: #f3f4f6;
+  --muted: #a1a1aa;
+  --subtle: #6b6b75;
+  --accent: #df7a4f;
+  --accent-fg: #ffffff;
+  --accent-soft: rgb(223 122 79 / 0.16);
+  --ok: #3ccf8e;
+  --ok-soft: rgb(60 207 142 / 0.14);
+  --warn: #f5b443;
+  --warn-soft: rgb(245 180 67 / 0.15);
+  --info: #5aa2ff;
+  --info-soft: rgb(90 162 255 / 0.15);
+  --danger: #ff5a5f;
+  --danger-soft: rgb(255 90 95 / 0.14);
+}
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f5f1ea;
+  --surface: #fffdf9;
+  --surface-2: #f3eee6;
+  --surface-3: #e9e1d5;
+  --line: rgb(60 40 20 / 0.1);
+  --line-strong: rgb(60 40 20 / 0.2);
+  --fg: #221c17;
+  --muted: #5c534a;
+  --subtle: #8e8378;
+  --accent: #b4552f;
+  --accent-fg: #ffffff;
+  --accent-soft: rgb(180 85 47 / 0.12);
+  --ok: #148a57;
+  --ok-soft: rgb(20 138 87 / 0.1);
+  --warn: #b26b00;
+  --warn-soft: rgb(178 107 0 / 0.1);
+  --info: #1f6fe0;
+  --info-soft: rgb(31 111 224 / 0.1);
+  --danger: #d4242b;
+  --danger-soft: rgb(212 36 43 / 0.1);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgb(60 160 110 / 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgb(60 160 110 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(60 160 110 / 0);
+  }
+}
+.pulse-ring {
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-ring {
+    animation: none;
+  }
+}

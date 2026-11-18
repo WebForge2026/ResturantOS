@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  AnimatePresence,
-  animate,
-  motion,
-  useMotionValue,
-  useMotionValueEvent,
-  useTransform,
-  type MotionValue,
-} from 'motion/react';
+import { AnimatePresence, animate, motion, useMotionValue, useMotionValueEvent } from 'motion/react';
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { PublicCategory, PublicProduct } from '@noar/types';
 import { formatBgn, formatEur } from '@noar/api-client';
@@ -19,10 +11,12 @@ import { pad2 } from '@/lib/labels';
 import { useReducedMotion } from '@/lib/useMedia';
 
 /**
- * NOAR signature: circular 3D plate carousel (turntable) with crimson focus laser,
- * liquid-chrome ring, inertial drag + spring snap, tap-to-focus, Предишно/Следващо,
- * keyboard arrows and a reduced-motion fallback. Pure CSS 3D (perspective: 1200px)
- * driven by Motion springs — one animation owner for the rotation.
+ * NOAR signature: a real round walnut table seen from above, plated dishes on its rim.
+ * Drag / swipe turns the table (inertia + spring snap), tap a plate to bring it to the front,
+ * tap the front plate for a close-up, Предишно / Следващо and arrow keys for accessible control,
+ * reduced-motion fallback.
+ * Performance: the whole table is ONE element rotated by a single transform (GPU-composited);
+ * plates never re-layout during rotation.
  */
 
 type Props = {
@@ -41,35 +35,30 @@ export function TurntableMenu(props: Props) {
   const { categories, activeCategoryId, onCategoryChange } = props;
   const category = categories.find((c) => c.id === activeCategoryId) ?? categories[0];
   const [focus, setFocus] = useState(0);
-
+  const [closeUp, setCloseUp] = useState<PublicProduct | null>(null);
   useEffect(() => setFocus(0), [activeCategoryId]);
-
-  const product = category?.products[Math.min(focus, (category?.products.length ?? 1) - 1)];
+  const products = category?.products ?? [];
+  const product = products[Math.min(focus, Math.max(0, products.length - 1))];
 
   return (
     <section aria-label="Меню" className="relative">
       <CategoryRail categories={categories} activeId={category?.id} onChange={onCategoryChange} />
 
-      <div className="relative mt-2">
-        <AnimatePresence mode="popLayout" initial={false}>
-          {category && category.products.length > 0 ? (
-            <Turntable key={category.id} products={category.products} focus={focus} onFocusChange={setFocus} />
+      <div className="mt-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-12">
+        <div className="lg:col-start-1 lg:row-start-1">
+          {product && category && <DishHeading product={product} index={focus} total={products.length} categoryName={category.name} showBgn={props.showBgn} bgnRate={props.bgnRate} />}
+        </div>
+        <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          {products.length > 0 ? (
+            <Table key={category!.id} products={products} focus={focus} onFocusChange={setFocus} onCloseUp={setCloseUp} />
           ) : (
-            <div className="grid h-[340px] place-items-center text-sm text-chrome-500">Няма налични ястия в тази категория.</div>
+            <div className="grid h-64 place-items-center text-sm text-ink-mute">Няма налични ястия в тази категория.</div>
           )}
-        </AnimatePresence>
+        </div>
+        <div className="lg:col-start-1 lg:row-start-2">{product && <DishDetails key={category!.id} product={product} {...props} />}</div>
       </div>
 
-      {product && category && (
-        <DishSpecCard
-          key={category.id}
-          product={product}
-          index={focus}
-          total={category.products.length}
-          categoryName={category.name}
-          {...props}
-        />
-      )}
+      <CloseUp product={closeUp} onClose={() => setCloseUp(null)} />
     </section>
   );
 }
@@ -79,13 +68,11 @@ export function TurntableMenu(props: Props) {
 function CategoryRail({ categories, activeId, onChange }: { categories: PublicCategory[]; activeId?: number; onChange: (id: number) => void }) {
   const railRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const el = railRef.current?.querySelector<HTMLElement>(`[data-cat="${activeId}"]`);
-    el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    railRef.current?.querySelector<HTMLElement>(`[data-cat="${activeId}"]`)?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   }, [activeId]);
-
   return (
-    <div ref={railRef} role="tablist" aria-label="Категории" className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 py-1">
-      {categories.map((c, i) => {
+    <div ref={railRef} role="tablist" aria-label="Категории" className="no-scrollbar -mx-5 flex gap-1 overflow-x-auto border-b border-ink/10 px-5">
+      {categories.map((c) => {
         const active = c.id === activeId;
         return (
           <button
@@ -94,22 +81,10 @@ function CategoryRail({ categories, activeId, onChange }: { categories: PublicCa
             data-cat={c.id}
             aria-selected={active}
             onClick={() => onChange(c.id)}
-            className={`relative shrink-0 rounded-full px-4 py-2.5 text-[13px] font-semibold tracking-wide transition-colors duration-300 ${
-              active ? 'text-white' : 'text-chrome-500 hover:text-chrome-300'
-            }`}
+            className={`relative shrink-0 px-3 pb-3 pt-2 text-[13.5px] font-semibold transition-colors duration-200 ${active ? 'text-ink' : 'text-ink-mute hover:text-ink-soft'}`}
           >
-            {active && (
-              <motion.span
-                layoutId="cat-pill"
-                className="glass crimson-rim absolute inset-0 rounded-full"
-                transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-              />
-            )}
-            {!active && <span className="absolute inset-0 rounded-full border border-white/10" />}
-            <span className="relative flex items-center gap-2">
-              <span className={`font-mono text-[10px] ${active ? 'text-crimson' : 'text-chrome-700'}`}>{pad2(i + 1)}</span>
-              {c.name}
-            </span>
+            {c.name}
+            {active && <motion.span layoutId="cat-line" className="absolute inset-x-2 -bottom-px h-[2px] rounded-full bg-terra" transition={{ type: 'spring', stiffness: 500, damping: 40 }} />}
           </button>
         );
       })}
@@ -117,99 +92,150 @@ function CategoryRail({ categories, activeId, onChange }: { categories: PublicCa
   );
 }
 
-// ---------------------------------------------------------------------------- turntable
+// ---------------------------------------------------------------------------- heading (above the table)
+
+function DishHeading({ product, index, total, categoryName, showBgn, bgnRate }: { product: PublicProduct; index: number; total: number; categoryName: string; showBgn: boolean; bgnRate: number }) {
+  const reduced = useReducedMotion();
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={product.id}
+        initial={reduced ? { opacity: 0 } : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={reduced ? { opacity: 0 } : { opacity: 0, y: -6 }}
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        aria-live="polite"
+      >
+        <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-mute">
+          <span>Ястие {pad2(index + 1)} от {pad2(total)}</span>
+          <span className="h-px w-8 bg-ink/20" />
+          <span className="truncate">{categoryName}</span>
+        </div>
+        <h2 className="mt-2 font-display text-[40px] font-medium leading-[0.98] tracking-[-0.01em] text-ink text-balance sm:text-[52px]">{product.name}</h2>
+        <p className="mt-3 max-w-[46ch] text-[14.5px] leading-relaxed text-ink-soft text-pretty">{product.description}</p>
+        <div className="mt-3 flex items-baseline gap-3">
+          <span className="tabular font-display text-[30px] font-semibold text-ink">{formatEur(product.price_cents)}</span>
+          {showBgn && <span className="tabular text-[12px] text-ink-mute">≈ {formatBgn(product.price_cents, bgnRate)}</span>}
+          {product.portion && <span className="text-[12px] text-ink-mute">· {product.portion}</span>}
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+// ---------------------------------------------------------------------------- the table
+
+const TABLE_TEXTURE = process.env.NEXT_PUBLIC_TABLE_TEXTURE ?? '';
 
 const mod = (n: number, m: number) => ((n % m) + m) % m;
 
-function useStageWidth(ref: React.RefObject<HTMLDivElement | null>) {
+function useWidth(ref: React.RefObject<HTMLDivElement | null>) {
   const [w, setW] = useState(360);
   useLayoutEffect(() => {
     if (!ref.current) return;
+    setW(ref.current.getBoundingClientRect().width);
     const ro = new ResizeObserver(([e]) => setW(e.contentRect.width));
     ro.observe(ref.current);
-    setW(ref.current.getBoundingClientRect().width);
     return () => ro.disconnect();
   }, [ref]);
   return w;
 }
 
-const Turntable = memo(function Turntable({
+const Table = memo(function Table({
   products,
   focus,
   onFocusChange,
+  onCloseUp,
 }: {
   products: PublicProduct[];
   focus: number;
   onFocusChange: (i: number) => void;
+  onCloseUp: (p: PublicProduct) => void;
 }) {
   const n = products.length;
-  const step = 360 / n;
+  // Fill the whole rim: repeat the category's dishes so neighbours are always visible.
+  const copies = Math.max(1, Math.ceil(8 / n));
+  const slots = n * copies;
+  const step = 360 / slots;
   const reduced = useReducedMotion();
-  const stageRef = useRef<HTMLDivElement>(null);
-  const width = useStageWidth(stageRef);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const width = useWidth(wrapRef);
 
-  // Geometry scales with the stage (phone → desktop)
-  const plate = Math.round(Math.min(220, Math.max(150, width * 0.48)));
-  const radius = Math.round(Math.min(330, Math.max(118, width * 0.38)));
-  const ringRy = Math.round(radius * 0.3);
-  const stageH = 34 + plate * 1.12 + 18;
+  const plate = Math.round(Math.min(200, Math.max(116, width * 0.34)));
+  const diameter = Math.round(width < 640 ? Math.max(620, width * 1.9) : Math.min(1000, width * 1.25));
+  const radius = diameter / 2 - plate * 0.62;
+  const top = 26;
+  const visibleH = Math.round(top + diameter / 2 - radius + plate * 0.55 + radius * (1 - Math.cos((2.2 * step * Math.PI) / 180)) + plate * 0.25);
 
-  // Spin-in on category change (rotation is the single animation owner)
-  const rotation = useMotionValue(reduced ? 0 : step * 1.35);
+  const rotation = useMotionValue(reduced ? 0 : step * 2.2);
   const anim = useRef<ReturnType<typeof animate> | null>(null);
+  const intro = useRef(!reduced);
+  const slotRef = useRef(0);
+  const [slot, setSlot] = useState(0);
+  const focusRef = useRef(focus);
+  focusRef.current = focus;
 
   const springTo = useCallback(
-    (target: number, velocity = 0) => {
+    (target: number, velocity = 0, isIntro = false) => {
       anim.current?.stop();
+      if (!isIntro) intro.current = false;
       if (reduced) {
         rotation.set(target);
         return;
       }
-      anim.current = animate(rotation, target, { type: 'spring', stiffness: 150, damping: 21, mass: 1, velocity });
+      anim.current = animate(rotation, target, {
+        type: 'spring',
+        stiffness: 170,
+        damping: 24,
+        mass: 0.9,
+        velocity,
+        onComplete: () => {
+          if (isIntro) intro.current = false;
+        },
+      });
     },
     [reduced, rotation],
   );
 
   useEffect(() => {
-    springTo(0);
+    onFocusChange(0);
+    springTo(0, 0, true);
     return () => anim.current?.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useMotionValueEvent(rotation, 'change', (r) => {
-    const idx = mod(Math.round(-r / step), n);
-    if (idx !== focusRef.current) {
-      focusRef.current = idx;
-      onFocusChange(idx);
+    if (intro.current) return;
+    const s = mod(Math.round(-r / step), slots);
+    if (s !== slotRef.current) {
+      slotRef.current = s;
+      setSlot(s);
+      const p = s % n;
+      if (p !== focusRef.current) onFocusChange(p);
     }
   });
-  const focusRef = useRef(focus);
 
-  const goTo = useCallback(
-    (index: number) => {
-      const current = rotation.get();
-      const currentIdx = Math.round(-current / step);
-      let delta = mod(index - mod(currentIdx, n), n);
-      if (delta > n / 2) delta -= n;
-      springTo(-(currentIdx + delta) * step);
+  const goToSlot = useCallback(
+    (target: number) => {
+      const cur = Math.round(-rotation.get() / step);
+      let delta = mod(target - mod(cur, slots), slots);
+      if (delta > slots / 2) delta -= slots;
+      springTo(-(cur + delta) * step);
     },
-    [n, rotation, springTo, step],
+    [rotation, slots, springTo, step],
   );
   const next = useCallback(() => springTo((Math.round(rotation.get() / step) - 1) * step), [rotation, springTo, step]);
   const prev = useCallback(() => springTo((Math.round(rotation.get() / step) + 1) * step), [rotation, springTo, step]);
 
-  // Drag with inertia → spring snap-to-focus
-  const drag = useRef<{ x: number; y: number; rot: number; lastX: number; lastT: number; v: number; moved: boolean; locked: 'x' | 'y' | null; plate: number | null; id: number } | null>(null);
-  const degPerPx = 70 / Math.max(120, radius * 1.25);
-
+  // drag along the rim → rotation (1px of finger ≈ 1px of rim travel)
+  const degPerPx = 180 / (Math.PI * radius);
+  const drag = useRef<{ x: number; y: number; rot: number; lastX: number; lastT: number; v: number; locked: 'x' | 'y' | null; moved: boolean; slot: number | null; id: number } | null>(null);
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0) return;
     anim.current?.stop();
-    const plateEl = (e.target as HTMLElement).closest<HTMLElement>('[data-plate]');
-    drag.current = {
-      x: e.clientX, y: e.clientY, rot: rotation.get(), lastX: e.clientX, lastT: performance.now(), v: 0,
-      moved: false, locked: null, plate: plateEl ? Number(plateEl.dataset.plate) : null, id: e.pointerId,
-    };
+    intro.current = false;
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-slot]');
+    drag.current = { x: e.clientX, y: e.clientY, rot: rotation.get(), lastX: e.clientX, lastT: performance.now(), v: 0, locked: null, moved: false, slot: el ? Number(el.dataset.slot) : null, id: e.pointerId };
   };
   const onPointerMove = (e: React.PointerEvent) => {
     const d = drag.current;
@@ -224,8 +250,7 @@ const Turntable = memo(function Turntable({
     if (d.locked !== 'x') return;
     d.moved = true;
     const now = performance.now();
-    const dt = Math.max(1, now - d.lastT);
-    d.v = 0.8 * ((e.clientX - d.lastX) / dt) + 0.2 * d.v; // px/ms, smoothed
+    d.v = 0.75 * ((e.clientX - d.lastX) / Math.max(1, now - d.lastT)) + 0.25 * d.v;
     d.lastX = e.clientX;
     d.lastT = now;
     rotation.set(d.rot + dx * degPerPx);
@@ -235,339 +260,250 @@ const Turntable = memo(function Turntable({
     drag.current = null;
     if (!d || d.id !== e.pointerId) return;
     if (!d.moved) {
-      if (d.plate !== null) goTo(d.plate);
+      if (d.slot === null) return;
+      if (d.slot === slotRef.current) {
+        const p = products[d.slot % n];
+        if (p) onCloseUp(p);
+      } else goToSlot(d.slot);
       return;
     }
-    const velDeg = d.v * 1000 * degPerPx; // deg/s
-    const projected = rotation.get() + velDeg * 0.22;
-    const maxTravel = step * 2;
-    const clamped = Math.max(d.rot - maxTravel * 1.5, Math.min(d.rot + maxTravel * 1.5, projected));
+    const velDeg = d.v * 1000 * degPerPx;
+    const projected = rotation.get() + velDeg * 0.2;
+    const max = step * 3;
+    const clamped = Math.max(d.rot - max, Math.min(d.rot + max, projected));
     springTo(Math.round(clamped / step) * step, velDeg);
   };
 
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      next();
-    } else if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      prev();
-    }
-  };
-
-  const ringRotate = useTransform(rotation, (r) => -r);
+  const slotItems = useMemo(() => Array.from({ length: slots }, (_, s) => products[s % n]), [products, slots, n]);
 
   return (
-    <motion.div
-      initial={reduced ? false : { opacity: 0, scale: 0.94, filter: 'blur(6px)' }}
-      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-      exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.92, filter: 'blur(8px)', transition: { duration: 0.22 } }}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-    >
+    <motion.div initial={reduced ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }} className="mt-4 lg:mt-0">
       <div
-        ref={stageRef}
+        ref={wrapRef}
         role="listbox"
-        aria-label="Въртяща се маса с ястия. Използвайте стрелките наляво и надясно."
-        aria-activedescendant={`plate-${products[focus]?.id}`}
+        aria-label="Въртяща се маса с ястия. Плъзнете или използвайте стрелките наляво и надясно."
+        aria-activedescendant={`slot-${slot}`}
         tabIndex={0}
-        onKeyDown={onKeyDown}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            next();
+          }
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            prev();
+          }
+          if (e.key === 'Enter') {
+            const p = products[slot % n];
+            if (p) onCloseUp(p);
+          }
+        }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={() => (drag.current = null)}
-        className="relative mx-auto w-full max-w-[860px] cursor-grab select-none outline-none focus-visible:ring-1 focus-visible:ring-crimson/60 active:cursor-grabbing"
-        style={{ height: stageH, touchAction: 'pan-y', perspective: '1200px', perspectiveOrigin: '50% 30%' }}
+        className="relative -mx-5 cursor-grab select-none overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-brass/50 active:cursor-grabbing sm:mx-0 sm:rounded-[28px]"
+        style={{ height: Math.min(visibleH, 600), touchAction: 'pan-y' }}
       >
-        {/* volumetric crimson haze */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute left-1/2 -translate-x-1/2"
-          style={{
-            top: plate * 0.15,
-            width: radius * 2.6,
-            height: plate * 1.3,
-            background: 'radial-gradient(ellipse at 50% 55%, rgba(255,42,42,0.22), rgba(153,0,0,0.10) 40%, transparent 70%)',
-            filter: 'blur(10px)',
-          }}
-        />
-
-        {/* top crimson focus laser-marker */}
-        <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 z-[200] -translate-x-1/2" style={{ height: 34 }}>
-          <div className="laser-pulse mx-auto h-full w-px bg-gradient-to-b from-transparent via-crimson to-crimson shadow-[0_0_12px_2px_rgba(255,42,42,0.75)]" />
-          <div className="laser-pulse mx-auto -mt-px h-0 w-0 border-x-[6px] border-t-[8px] border-x-transparent border-t-crimson drop-shadow-[0_0_8px_rgba(255,42,42,0.9)]" />
-          <span className="absolute left-3 top-0 whitespace-nowrap font-mono text-[9px] tracking-[0.3em] text-crimson/80">ФОКУС</span>
+        {/* front marker */}
+        <div aria-hidden className="pointer-events-none absolute left-1/2 top-1.5 z-20 -translate-x-1/2">
+          <div className="h-0 w-0 border-x-[7px] border-t-[9px] border-x-transparent border-t-brass" />
         </div>
 
-        {/* liquid-chrome turntable ring */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute left-1/2"
-          style={{ top: 34 + plate / 2 + 6 - ringRy, width: radius * 2 + plate * 0.5, height: ringRy * 2 + plate * 0.18, transform: 'translateX(-50%)' }}
-        >
-          <div className="absolute inset-0 rounded-[50%] border border-white/10 bg-[radial-gradient(ellipse_at_50%_40%,rgba(255,255,255,0.05),rgba(5,5,7,0.6)_60%,transparent_75%)]" />
-          <div className="absolute inset-[3%] overflow-hidden rounded-[50%]" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.18), 0 0 40px rgba(255,42,42,0.15)' }}>
-            <div className="absolute inset-0" style={{ transform: 'scaleY(1)' }}>
-              <motion.div
-                className="absolute left-1/2 top-1/2 aspect-square w-[140%] -translate-x-1/2 -translate-y-1/2"
-                style={{
-                  rotate: ringRotate,
-                  background:
-                    'conic-gradient(from 0deg, rgba(255,255,255,0.0), rgba(255,255,255,0.35) 8%, rgba(201,204,211,0.05) 18%, rgba(255,42,42,0.35) 30%, rgba(255,255,255,0.0) 40%, rgba(255,255,255,0.28) 58%, rgba(138,143,153,0.05) 70%, rgba(255,42,42,0.25) 84%, rgba(255,255,255,0))',
-                  maskImage: 'radial-gradient(closest-side, transparent 86%, black 88%, black 100%)',
-                  WebkitMaskImage: 'radial-gradient(closest-side, transparent 86%, black 88%, black 100%)',
-                }}
-              />
+        {/* the table: ONE rotating layer */}
+        <motion.div className="walnut absolute left-1/2 rounded-full will-change-transform" style={{ width: diameter, height: diameter, top, marginLeft: -diameter / 2, rotate: rotation }}>
+          {TABLE_TEXTURE ? (
+            // Real wood photo (optional): apps/qr-menu/public/table/wood.jpg + NEXT_PUBLIC_TABLE_TEXTURE=/table/wood.jpg
+            <div aria-hidden className="absolute inset-[10px] rounded-full bg-cover bg-center" style={{ backgroundImage: `url(${TABLE_TEXTURE})` }} />
+          ) : (
+            <WoodGrain />
+          )}
+          {slotItems.map((p, s) => (
+            <div
+              key={s}
+              id={`slot-${s}`}
+              role="option"
+              aria-selected={s === slot}
+              aria-label={p.name}
+              data-slot={s}
+              className="absolute left-1/2 top-1/2"
+              style={{ width: plate, height: plate, marginLeft: -plate / 2, marginTop: -plate / 2, transform: `rotate(${s * step}deg) translateY(${-radius}px)` }}
+            >
+              <div
+                className="relative h-full w-full rounded-full transition-transform duration-300 ease-out"
+                style={{ transform: `scale(${s === slot ? 1.1 : 0.94})`, filter: 'drop-shadow(0 14px 12px rgba(30,15,5,0.45)) drop-shadow(0 2px 2px rgba(30,15,5,0.3))' }}
+              >
+                <PlateArt art={p.art} imageUrl={p.image_url} label={p.name} seed={p.id} />
+                {!p.is_available && <div className="absolute inset-0 grid place-items-center rounded-full bg-paper/70 text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-soft">Изчерпано</div>}
+              </div>
             </div>
-          </div>
-          {/* crimson rim light on the front edge */}
-          <div className="absolute inset-x-[12%] bottom-0 h-[38%] rounded-[50%] border-b-2 border-crimson/70 shadow-[0_10px_30px_rgba(255,42,42,0.35)]" />
-          {/* tick marks */}
-          <div className="absolute inset-[6%] rounded-[50%] border border-dashed border-white/[0.07]" />
-        </div>
-
-        {products.map((p, i) => (
-          <Plate
-            key={p.id}
-            product={p}
-            index={i}
-            step={step}
-            rotation={rotation}
-            radius={radius}
-            ringRy={ringRy}
-            size={plate}
-            focused={i === focus}
-            top={34}
-          />
-        ))}
-      </div>
-
-      {/* controls */}
-      <div className="mt-1 flex items-center justify-center gap-3">
-        <button
-          onClick={prev}
-          className="group flex h-11 items-center gap-2 rounded-full border border-white/10 px-4 text-[13px] font-semibold text-chrome-300 transition-colors hover:border-white/25 hover:text-white active:scale-[0.96]"
-        >
-          <span aria-hidden className="text-crimson transition-transform group-hover:-translate-x-0.5">←</span> Предишно
-        </button>
-        <div className="flex gap-1.5" aria-hidden>
-          {products.map((p, i) => (
-            <span key={p.id} className={`h-1 rounded-full transition-all duration-300 ${i === focus ? 'w-6 bg-crimson shadow-[0_0_8px_rgba(255,42,42,0.8)]' : 'w-1.5 bg-white/20'}`} />
           ))}
-        </div>
-        <button
-          onClick={next}
-          className="group flex h-11 items-center gap-2 rounded-full border border-white/10 px-4 text-[13px] font-semibold text-chrome-300 transition-colors hover:border-white/25 hover:text-white active:scale-[0.96]"
-        >
-          Следващо <span aria-hidden className="text-crimson transition-transform group-hover:translate-x-0.5">→</span>
+        </motion.div>
+
+        {/* soft room light + fade into the page */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_10%,rgba(255,240,215,0.25),transparent_70%)]" />
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-linen" />
+      </div>
+
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <button onClick={prev} className="flex h-11 items-center gap-2 rounded-full border border-ink/15 bg-paper px-4 text-[13px] font-semibold text-ink transition hover:border-ink/30 active:scale-[0.96]">
+          <span aria-hidden>←</span> Предишно
+        </button>
+        <span className="text-center text-[11.5px] leading-tight text-ink-mute">
+          Плъзнете, за да
+          <br />
+          завъртите масата
+        </span>
+        <button onClick={next} className="flex h-11 items-center gap-2 rounded-full border border-ink/15 bg-paper px-4 text-[13px] font-semibold text-ink transition hover:border-ink/30 active:scale-[0.96]">
+          Следващо <span aria-hidden>→</span>
         </button>
       </div>
     </motion.div>
   );
 });
 
-const Plate = memo(function Plate({
-  product,
-  index,
-  step,
-  rotation,
-  radius,
-  ringRy,
-  size,
-  focused,
-  top,
-}: {
-  product: PublicProduct;
-  index: number;
-  step: number;
-  rotation: MotionValue<number>;
-  radius: number;
-  ringRy: number;
-  size: number;
-  focused: boolean;
-  top: number;
-}) {
-  const angle = useTransform(rotation, (r) => ((index * step + r) * Math.PI) / 180);
-  const x = useTransform(angle, (a) => Math.sin(a) * radius);
-  const y = useTransform(angle, (a) => (Math.cos(a) - 1) * ringRy);
-  const z = useTransform(angle, (a) => (Math.cos(a) - 1) * radius * 0.9);
-  const depth = useTransform(angle, (a) => (Math.cos(a) + 1) / 2);
-  const scale = useTransform(depth, (d) => 0.5 + 0.5 * d * d);
-  const opacity = useTransform(depth, (d) => 0.28 + 0.72 * d);
-  const zIndex = useTransform(depth, (d) => Math.round(d * 100));
-  const shadowOpacity = useTransform(depth, (d) => 0.25 + 0.55 * d);
-  // plates yaw toward the turntable centre → reads as a real rotating table, not flat cards
-  const rotateY = useTransform(angle, (a) => Math.sin(a) * -28);
-
+/** Static procedural wood grain, rasterised once and rotated as part of the table layer. */
+const WoodGrain = memo(function WoodGrain() {
   return (
-    <motion.div
-      id={`plate-${product.id}`}
-      role="option"
-      aria-selected={focused}
-      aria-label={`${product.name}${product.is_available ? '' : ' — временно изчерпано'}`}
-      data-plate={index}
-      className="absolute left-1/2 will-change-transform"
-      style={{ top, width: size, height: size, marginLeft: -size / 2, x, y, z, rotateY, scale, opacity, zIndex, transformStyle: 'preserve-3d' }}
-    >
-      {/* contact shadow on the ring */}
-      <motion.div
-        aria-hidden
-        className="absolute left-1/2 top-[88%] h-[18%] w-[80%] -translate-x-1/2 rounded-[50%] bg-black blur-md"
-        style={{ opacity: shadowOpacity }}
-      />
-      <motion.div
-        className="relative h-full w-full rounded-full"
-        animate={{
-          scale: focused ? 1.1 : 1,
-          boxShadow: focused
-            ? '0 0 30px rgba(255,42,42,0.5), 0 0 0 1px rgba(255,42,42,0.55), 0 30px 60px -20px rgba(0,0,0,0.9)'
-            : '0 0 0px rgba(255,42,42,0), 0 0 0 1px rgba(255,255,255,0.06), 0 24px 40px -24px rgba(0,0,0,0.9)',
-        }}
-        transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-      >
-        <PlateArt art={product.art} imageUrl={product.image_url} label={product.name} seed={product.id} />
-        {!product.is_available && (
-          <div className="absolute inset-0 grid place-items-center rounded-full bg-black/60 font-mono text-[10px] uppercase tracking-[0.25em] text-chrome-300">
-            Изчерпано
-          </div>
-        )}
-      </motion.div>
-    </motion.div>
+    <svg aria-hidden className="pointer-events-none absolute inset-0 h-full w-full rounded-full opacity-60 mix-blend-multiply" viewBox="0 0 400 400" preserveAspectRatio="none">
+      <filter id="noar-grain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.09" numOctaves="3" seed="7" />
+        <feColorMatrix values="0 0 0 0 0.42  0 0 0 0 0.27  0 0 0 0 0.16  0 0 0 0.9 -0.15" />
+      </filter>
+      <clipPath id="noar-round">
+        <circle cx="200" cy="200" r="200" />
+      </clipPath>
+      <g clipPath="url(#noar-round)">
+        <rect x="-60" y="-60" width="520" height="520" filter="url(#noar-grain)" transform="rotate(18 200 200)" />
+      </g>
+    </svg>
   );
 });
 
-// ---------------------------------------------------------------------------- spec card
+// ---------------------------------------------------------------------------- close-up
 
-function DishSpecCard({
-  product,
-  index,
-  total,
-  categoryName,
-  showBgn,
-  bgnRate,
-  quantityFor,
-  onAdd,
-  onInc,
-  onDec,
-}: Props & { product: PublicProduct; index: number; total: number; categoryName: string }) {
-  const reduced = useReducedMotion();
-  const defaults = useMemo(
-    () => product.modifier_groups.filter((g) => g.kind === 'variant' && g.min > 0 && g.options[0]).map((g) => g.options[0].id),
-    [product],
+function CloseUp({ product, onClose }: { product: PublicProduct | null; onClose: () => void }) {
+  useEffect(() => {
+    if (!product) return;
+    const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  }, [product, onClose]);
+  return (
+    <AnimatePresence>
+      {product && (
+        <motion.div
+          className="fixed inset-0 z-[85] flex flex-col items-center justify-center bg-linen/95 px-6 backdrop-blur"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          role="dialog"
+          aria-label={product.name}
+        >
+          <motion.div
+            className="w-[min(82vw,460px)]"
+            initial={{ scale: 0.6, rotate: -25 }}
+            animate={{ scale: 1, rotate: 0 }}
+            exit={{ scale: 0.7, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 24 }}
+            style={{ filter: 'drop-shadow(0 30px 30px rgba(40,20,5,0.35))' }}
+          >
+            <PlateArt art={product.art} imageUrl={product.image_url} label={product.name} seed={product.id} />
+          </motion.div>
+          <div className="mt-6 text-center font-display text-[30px] leading-tight">{product.name}</div>
+          <button onClick={onClose} className="mt-4 rounded-full border border-ink/20 bg-paper px-5 py-2.5 text-[13px] font-semibold">
+            ← Обратно към масата
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
-  const [selected, setSelected] = useState<number[]>(defaults);
-  useEffect(() => setSelected(defaults), [defaults]);
+}
 
+// ---------------------------------------------------------------------------- details below the table
+
+function DishDetails({ product, quantityFor, onAdd, onInc, onDec }: Props & { product: PublicProduct }) {
+  const defaults = useMemo(() => product.modifier_groups.filter((g) => g.kind === 'variant' && g.min > 0 && g.options[0]).map((g) => g.options[0].id), [product]);
+  // Selections are stored per product so they can never lag behind the focused dish.
+  const [selections, setSelections] = useState<Record<number, number[]>>({});
+  const selected = selections[product.id] ?? defaults;
+  const setSelected = (fn: (cur: number[]) => number[]) => setSelections((all) => ({ ...all, [product.id]: fn(all[product.id] ?? defaults) }));
   const unit = product.price_cents + product.modifier_groups.flatMap((g) => g.options).filter((o) => selected.includes(o.id)).reduce((s, o) => s + o.price_delta_cents, 0);
   const key = lineKey(product.id, selected);
   const qty = quantityFor(key);
 
   const toggle = (groupId: number, optionId: number) => {
     const group = product.modifier_groups.find((g) => g.id === groupId)!;
-    const groupIds = group.options.map((o) => o.id);
+    const ids = group.options.map((o) => o.id);
     setSelected((cur) => {
-      if (group.max === 1) return [...cur.filter((id) => !groupIds.includes(id)), optionId];
+      if (group.max === 1) return [...cur.filter((id) => !ids.includes(id)), optionId];
       if (cur.includes(optionId)) {
-        const remaining = cur.filter((id) => id !== optionId);
-        return remaining.filter((id) => groupIds.includes(id)).length < group.min ? cur : remaining;
+        const rest = cur.filter((id) => id !== optionId);
+        return rest.filter((id) => ids.includes(id)).length < group.min ? cur : rest;
       }
-      if (cur.filter((id) => groupIds.includes(id)).length >= group.max) return cur;
+      if (cur.filter((id) => ids.includes(id)).length >= group.max) return cur;
       return [...cur, optionId];
     });
   };
 
-  const variants = reduced
-    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
-    : {
-        initial: { opacity: 0, y: 14, filter: 'blur(6px)' },
-        animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
-        exit: { opacity: 0, y: -8, filter: 'blur(4px)' },
-      };
-
   return (
-    <div className="glass relative mx-auto mt-4 max-w-[860px] overflow-hidden rounded-[28px] p-5 sm:p-7">
-      <div aria-hidden className="chrome-line absolute inset-x-6 top-0 h-px opacity-60" />
-      <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-crimson/10 blur-3xl" />
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div key={product.id} {...variants} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} aria-live="polite">
-          <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.28em] text-chrome-500">
-            <span>
-              <span className="text-crimson">{pad2(index + 1)}</span> / {pad2(total)} · {categoryName}
+    <div className="mt-6 lg:mt-8">
+      {product.ingredients && (
+        <p className="text-[13px] leading-relaxed text-ink-soft">
+          <span className="font-semibold text-ink">Състав: </span>
+          {product.ingredients}
+        </p>
+      )}
+      {product.allergens.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Алергени">
+          {product.allergens.map((a) => (
+            <span key={a} className="rounded-full border border-ink/15 bg-paper px-2.5 py-1 text-[11.5px] font-medium text-ink-soft">
+              {a}
             </span>
-            {product.portion && <span className="tracking-[0.18em]">{product.portion}</span>}
-          </div>
-
-          <div className="mt-3 flex items-start justify-between gap-4">
-            <h2 className="chrome-text font-display text-[26px] leading-[1.08] font-semibold tracking-tight text-balance sm:text-[34px]">{product.name}</h2>
-            <div className="shrink-0 text-right">
-              <div className="tabular font-display text-[22px] font-semibold text-white sm:text-[26px]">{formatEur(unit)}</div>
-              {showBgn && <div className="tabular font-mono text-[11px] text-chrome-500">≈ {formatBgn(unit, bgnRate)}</div>}
-            </div>
-          </div>
-
-          <p className="mt-3 text-[14px] leading-relaxed text-chrome-300 text-pretty">{product.description}</p>
-
-          {product.ingredients && (
-            <p className="mt-2 text-[12px] leading-relaxed text-chrome-500">
-              <span className="font-mono uppercase tracking-[0.2em] text-chrome-700">Състав · </span>
-              {product.ingredients}
-            </p>
-          )}
-
-          {product.allergens.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Алергени">
-              {product.allergens.map((a) => (
-                <span key={a} className="rounded-full border border-crimson/30 bg-crimson/[0.06] px-2.5 py-1 text-[11px] font-medium text-[#ffb3b3]">
-                  {a}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <NutritionTelemetry product={product} />
-
-          {product.modifier_groups.map((g) => (
-            <fieldset key={g.id} className="mt-4">
-              <legend className="mb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-chrome-500">
-                {g.name}
-                {g.min > 0 ? ' · задължително' : g.max > 1 ? ` · до ${g.max}` : ''}
-              </legend>
-              <div className="flex flex-wrap gap-2">
-                {g.options.map((o) => {
-                  const on = selected.includes(o.id);
-                  return (
-                    <button
-                      key={o.id}
-                      type="button"
-                      aria-pressed={on}
-                      onClick={() => toggle(g.id, o.id)}
-                      className={`min-h-10 rounded-xl border px-3 py-2 text-[13px] font-medium transition-colors duration-200 active:scale-[0.97] ${
-                        on ? 'border-crimson/70 bg-crimson/15 text-white shadow-[0_0_16px_rgba(255,42,42,0.25)]' : 'border-white/10 text-chrome-300 hover:border-white/25'
-                      }`}
-                    >
-                      {o.name}
-                      {o.price_delta_cents !== 0 && (
-                        <span className="tabular ml-1.5 text-chrome-500">
-                          {o.price_delta_cents > 0 ? '+' : ''}
-                          {formatEur(o.price_delta_cents)}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
           ))}
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      )}
+      <Nutrition product={product} />
+      {product.modifier_groups.map((g) => (
+        <fieldset key={g.id} className="mt-5">
+          <legend className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-mute">
+            {g.name}
+            {g.min > 0 ? ' · задължително' : g.max > 1 ? ` · до ${g.max}` : ''}
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {g.options.map((o) => {
+              const on = selected.includes(o.id);
+              return (
+                <button
+                  key={o.id}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => toggle(g.id, o.id)}
+                  className={`min-h-10 rounded-full border px-4 py-2 text-[13px] font-medium transition-colors active:scale-[0.97] ${on ? 'border-ink bg-ink text-paper' : 'border-ink/15 bg-paper text-ink-soft hover:border-ink/35'}`}
+                >
+                  {o.name}
+                  {o.price_delta_cents !== 0 && (
+                    <span className={`tabular ml-1.5 ${on ? 'text-paper/70' : 'text-ink-mute'}`}>
+                      {o.price_delta_cents > 0 ? '+' : ''}
+                      {formatEur(o.price_delta_cents)}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      ))}
 
-      <div className="mt-5">
+      <div className="mt-6">
         <AnimatePresence mode="wait" initial={false}>
           {!product.is_available ? (
-            <motion.div key="na" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid h-14 place-items-center rounded-2xl border border-white/10 text-sm text-chrome-500">
+            <motion.div key="na" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid h-14 place-items-center rounded-full border border-ink/15 text-sm text-ink-mute">
               Временно изчерпано
             </motion.div>
           ) : qty === 0 ? (
-            <motion.div key="add" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.18 }}>
+            <motion.div key="add" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.12 }}>
               <MagneticButton
                 onClick={() => {
                   onAdd(product, selected);
@@ -577,67 +513,60 @@ function DishSpecCard({
                     /* ignore */
                   }
                 }}
-                className="group relative h-14 w-full overflow-hidden rounded-2xl bg-gradient-to-b from-crimson to-crimson-deep text-[15px] font-bold tracking-wide text-white shadow-[0_10px_40px_-10px_rgba(255,42,42,0.8),inset_0_1px_0_rgba(255,255,255,0.35)]"
+                className="h-14 w-full rounded-full bg-terra text-[15px] font-bold tracking-wide text-paper shadow-[0_12px_30px_-12px_rgba(180,85,47,0.8)] transition-colors hover:bg-terra-deep"
               >
-                <span aria-hidden className="absolute inset-0 bg-[linear-gradient(110deg,transparent_30%,rgba(255,255,255,0.28)_50%,transparent_70%)] bg-[length:250%_100%] bg-[position:120%_0] transition-[background-position] duration-700 group-hover:bg-[position:-20%_0]" />
-                <span className="relative">+ Добави към поръчката</span>
+                + Добави към поръчката
               </MagneticButton>
             </motion.div>
           ) : (
             <motion.div
               key="stepper"
-              initial={{ opacity: 0, scale: 0.96 }}
+              initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-              className="crimson-rim flex h-14 items-center justify-between rounded-2xl bg-black/40 px-2"
+              exit={{ opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+              className="flex h-14 items-center justify-between rounded-full border border-ink/15 bg-paper px-2"
             >
-              <button aria-label="Намали количеството" onClick={() => onDec(key)} className="grid h-11 w-14 place-items-center rounded-xl text-2xl font-light text-white transition active:scale-90 hover:bg-white/5">
+              <button aria-label="Намали количеството" onClick={() => onDec(key)} className="grid h-11 w-14 place-items-center rounded-full text-2xl text-ink transition hover:bg-sand active:scale-90">
                 −
               </button>
               <div className="text-center" aria-live="polite">
-                <AnimatePresence mode="popLayout" initial={false}>
-                  <motion.div key={qty} initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -12, opacity: 0 }} className="tabular font-display text-xl font-semibold">
-                    {qty}
-                  </motion.div>
-                </AnimatePresence>
-                <div className="font-mono text-[9px] uppercase tracking-[0.25em] text-crimson">в поръчката</div>
+                <div className="tabular font-display text-[24px] font-semibold leading-none">{qty}</div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-terra">в поръчката</div>
               </div>
-              <button aria-label="Увеличи количеството" onClick={() => onInc(key)} className="grid h-11 w-14 place-items-center rounded-xl text-2xl font-light text-white transition active:scale-90 hover:bg-white/5">
+              <button aria-label="Увеличи количеството" onClick={() => onInc(key)} className="grid h-11 w-14 place-items-center rounded-full text-2xl text-ink transition hover:bg-sand active:scale-90">
                 +
               </button>
             </motion.div>
           )}
         </AnimatePresence>
+        {unit !== product.price_cents && <p className="tabular mt-2 text-center text-[12px] text-ink-mute">С избраните добавки: {formatEur(unit)}</p>}
       </div>
     </div>
   );
 }
 
-function NutritionTelemetry({ product }: { product: PublicProduct }) {
+function Nutrition({ product }: { product: PublicProduct }) {
   const n = product.nutrition;
   if (!n) return null;
-  const cols: Array<{ label: string; value: number | null; unit: string; max: number }> = [
-    { label: 'Калории', value: n.kcal, unit: 'kcal', max: 1200 },
-    { label: 'Протеини', value: n.protein, unit: 'г', max: 80 },
-    { label: 'Мазнини', value: n.fat, unit: 'г', max: 80 },
-    { label: 'Въглехидрати', value: n.carbs, unit: 'г', max: 120 },
+  const cols = [
+    { label: 'Калории', value: n.kcal, unit: 'kcal' },
+    { label: 'Протеини', value: n.protein, unit: 'г' },
+    { label: 'Мазнини', value: n.fat, unit: 'г' },
+    { label: 'Въглехидрати', value: n.carbs, unit: 'г' },
   ];
   return (
-    <div className="mt-4">
-      <div className="grid grid-cols-4 overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-        {cols.map((c, i) => (
-          <div key={c.label} className={`px-2 py-3 text-center ${i > 0 ? 'border-l border-white/10' : ''}`}>
-            <div className="truncate font-mono text-[8.5px] uppercase tracking-[0.12em] text-chrome-500 sm:text-[10px]">{c.label}</div>
-            <div className="tabular mt-1 font-display text-[17px] font-semibold text-white sm:text-[20px]">{c.value ?? '—'}</div>
-            <div className="font-mono text-[9px] text-chrome-500">{c.unit}</div>
-            <div className="mx-auto mt-2 h-[2px] w-10/12 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full bg-gradient-to-r from-crimson-deep to-crimson" style={{ width: `${Math.min(100, ((c.value ?? 0) / c.max) * 100)}%` }} />
-            </div>
+    <div className="mt-5">
+      <div className="grid grid-cols-4 divide-x divide-ink/10 rounded-2xl border border-ink/10 bg-paper">
+        {cols.map((c) => (
+          <div key={c.label} className="px-1.5 py-3 text-center">
+            <div className="truncate text-[9.5px] font-semibold uppercase tracking-[0.08em] text-ink-mute">{c.label}</div>
+            <div className="tabular mt-1 font-display text-[22px] font-semibold leading-none text-ink">{c.value ?? '—'}</div>
+            <div className="mt-0.5 text-[10px] text-ink-mute">{c.unit}</div>
           </div>
         ))}
       </div>
-      {n.is_estimate && <p className="mt-1.5 font-mono text-[9.5px] text-chrome-700">* ориентировъчни стойности на порция, непотвърдени лабораторно</p>}
+      {n.is_estimate && <p className="mt-1.5 text-[10.5px] text-ink-mute">* ориентировъчни стойности на порция</p>}
     </div>
   );
 }

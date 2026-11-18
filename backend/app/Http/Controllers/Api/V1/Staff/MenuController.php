@@ -75,7 +75,7 @@ class MenuController extends Controller
             'price_cents' => ['required', 'integer', 'min:0', 'max:1000000'],
             'vat_rate_bps' => ['nullable', 'integer', 'between:0,3000'],
             'portion' => ['nullable', 'string', 'max:64'],
-            'image_url' => ['nullable', 'url', 'max:255'],
+            'image_url' => ['nullable', 'string', 'max:255', 'regex:/^(https?:\/\/|\/storage\/)/'],
             'nutrition' => ['nullable', 'array'],
             'nutrition.kcal' => ['nullable', 'numeric', 'min:0'],
             'nutrition.protein' => ['nullable', 'numeric', 'min:0'],
@@ -120,6 +120,18 @@ class MenuController extends Controller
         });
         Audit::record($branch, $productId ? 'product.updated' : 'product.created', $product, ['price_cents' => $product->price_cents]);
         return response()->json(['product' => Present::staffProduct($product->load('modifierGroups.options', 'recipeItems'))], $productId ? 200 : 201);
+    }
+
+    /** Upload a real dish photo (stored on the public disk, served at /storage/products/…). */
+    public function uploadImage(Request $request, int $productId): JsonResponse
+    {
+        $branch = $this->branch($request);
+        $product = $this->own(Product::find($productId), $branch);
+        $request->validate(['image' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:6144', 'dimensions:min_width=300,min_height=300']]);
+        $path = $request->file('image')->store("products/{$branch->id}", 'public');
+        $product->update(['image_url' => '/storage/'.$path]);
+        Audit::record($branch, 'product.image', $product, ['path' => $path]);
+        return response()->json(['product' => Present::staffProduct($product->load('modifierGroups.options', 'recipeItems'))]);
     }
 
     public function toggleAvailability(Request $request, int $productId): JsonResponse

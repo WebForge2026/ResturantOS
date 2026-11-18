@@ -31,18 +31,15 @@ const PlateArtImpl = ({ art, imageUrl, label, seed }: Props) => {
   return (
     <svg viewBox="0 0 200 200" className="h-full w-full" role="img" aria-label={label}>
       <defs>
-        <radialGradient id={`plate-${uid}`} cx="45%" cy="38%" r="65%">
-          <stop offset="0%" stopColor={isGlass ? '#1a1b20' : '#2a2b31'} />
-          <stop offset="70%" stopColor={isGlass ? '#0c0c10' : '#151519'} />
-          <stop offset="100%" stopColor="#060608" />
+        <radialGradient id={`plate-${uid}`} cx="42%" cy="36%" r="70%">
+          <stop offset="0%" stopColor={isGlass ? '#f3efe8' : '#ffffff'} />
+          <stop offset="70%" stopColor={isGlass ? '#e6e0d6' : '#f6f2ec'} />
+          <stop offset="100%" stopColor={isGlass ? '#d6cfc3' : '#e8e1d6'} />
         </radialGradient>
         <linearGradient id={`rim-${uid}`} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="22%" stopColor="#8a8f99" />
-          <stop offset="45%" stopColor="#f4f5f7" />
-          <stop offset="62%" stopColor="#3a3d44" />
-          <stop offset="82%" stopColor="#c9ccd3" />
-          <stop offset="100%" stopColor="#55585f" />
+          <stop offset="55%" stopColor="#efe9df" />
+          <stop offset="100%" stopColor="#d8cfc1" />
         </linearGradient>
         <radialGradient id={`food-${uid}`} cx="40%" cy="35%" r="70%">
           <stop offset="0%" stopColor={lighten(base, 0.35)} />
@@ -53,6 +50,9 @@ const PlateArtImpl = ({ art, imageUrl, label, seed }: Props) => {
           <stop offset="0%" stopColor="rgba(255,255,255,0.55)" />
           <stop offset="100%" stopColor="rgba(255,255,255,0)" />
         </radialGradient>
+        <clipPath id={`photo-${uid}`}>
+          <circle cx="100" cy="100" r="94" />
+        </clipPath>
         <clipPath id={`clip-${uid}`}>
           <circle cx="100" cy="100" r="74" />
         </clipPath>
@@ -62,18 +62,18 @@ const PlateArtImpl = ({ art, imageUrl, label, seed }: Props) => {
       </defs>
 
       {/* plate body + liquid chrome rim */}
-      <circle cx="100" cy="100" r="97" fill={`url(#rim-${uid})`} />
+      <circle cx="100" cy="100" r="98" fill={`url(#rim-${uid})`} />
       <circle cx="100" cy="100" r="93" fill={`url(#plate-${uid})`} />
-      <circle cx="100" cy="100" r="78" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+      <circle cx="100" cy="100" r="76" fill="none" stroke="rgba(120,100,80,0.18)" strokeWidth="1" />
 
       {imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <image href={imageUrl} x="26" y="26" width="148" height="148" clipPath={`url(#clip-${uid})`} preserveAspectRatio="xMidYMid slice" />
+        <image href={imageUrl} x="6" y="6" width="188" height="188" clipPath={`url(#photo-${uid})`} preserveAspectRatio="xMidYMid slice" />
       ) : (
         <g clipPath={`url(#clip-${uid})`}>{renderFood(style, uid, base, accents, r)}</g>
       )}
 
-      <circle cx="100" cy="100" r="93" fill={`url(#spec-${uid})`} />
+      <circle cx="100" cy="100" r="93" fill={`url(#spec-${uid})`} opacity="0.6" />
     </svg>
   );
 };

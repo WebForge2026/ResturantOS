@@ -1,0 +1,17 @@
+# Local infrastructure only (MySQL + Redis). Laravel, Reverb and the frontends run on the host.
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: noar
+      MYSQL_USER: noar
+      MYSQL_PASSWORD: noar_local
+      MYSQL_ROOT_PASSWORD: root_local
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports: ["127.0.0.1:3306:3306"]
+    volumes: [mysql-data:/var/lib/mysql, ./scripts/mysql-init.sql:/docker-entrypoint-initdb.d/init.sql:ro]
+  redis:
+    image: redis:7-alpine
+    ports: ["127.0.0.1:6379:6379"]
+volumes:
+  mysql-data:

@@ -56,6 +56,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('categories/{category}', [MenuController::class, 'deleteCategory'])->middleware('branch:menu.manage');
             Route::post('products', [MenuController::class, 'saveProduct'])->middleware('branch:menu.manage');
             Route::put('products/{product}', [MenuController::class, 'saveProduct'])->middleware('branch:menu.manage');
+            Route::post('products/{product}/image', [MenuController::class, 'uploadImage'])->middleware('branch:menu.manage');
             Route::patch('products/{product}/availability', [MenuController::class, 'toggleAvailability'])->middleware('branch:orders.accept');
             Route::delete('products/{product}', [MenuController::class, 'deleteProduct'])->middleware('branch:menu.manage');
             Route::post('menu/import', [MenuController::class, 'import'])->middleware('branch:menu.manage');

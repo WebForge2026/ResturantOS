@@ -172,10 +172,7 @@ export function QrApp() {
 
   return (
     <div className="relative min-h-dvh overflow-x-clip">
-      {/* darkroom atmosphere */}
-      <div aria-hidden className="noar-grid pointer-events-none fixed inset-0" />
-      <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 h-[60vh] bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(153,0,0,0.28),transparent_70%)]" />
-      <div aria-hidden className="noar-grain pointer-events-none fixed inset-0 z-[100]" />
+      <div aria-hidden className="linen-bg pointer-events-none fixed inset-0" />
 
       <OrderStatusTracker
         session={live.state}
@@ -193,7 +190,7 @@ export function QrApp() {
         }}
       />
 
-      <main className={`relative mx-auto max-w-[960px] px-4 pb-36 ${live.state?.orders.length ? 'pt-16' : 'pt-6'} sm:px-6`}>
+      <main className={`relative mx-auto max-w-[1180px] px-5 pb-36 ${live.state?.orders.length ? 'pt-16' : 'pt-6'} sm:px-6`}>
         <Header
           brand={ctx.restaurant.name}
           tableTitle={tableTitle}
@@ -217,7 +214,7 @@ export function QrApp() {
           />
         </div>
 
-        <footer className="mt-10 space-y-1 text-center font-mono text-[10px] leading-relaxed tracking-wide text-chrome-700">
+        <footer className="mt-12 space-y-1 border-t border-ink/10 pt-6 text-center text-[11px] leading-relaxed text-ink-mute">
           <p>Цени в евро (EUR), с включен ДДС. {ctx.restaurant.show_bgn && 'Левовата равностойност е информативна (1 € = 1,95583 лв.).'}</p>
           <p>Хранителните стойности са ориентировъчни. За алергии, моля, попитайте персонала.</p>
           <p>Данните за поръчката се използват само за обслужването ѝ.</p>
@@ -234,12 +231,12 @@ export function QrApp() {
             transition={{ type: 'spring', stiffness: 320, damping: 30 }}
             className="fixed inset-x-0 bottom-0 z-[70] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
           >
-            <div className="glass crimson-rim mx-auto flex max-w-[640px] items-center gap-3 rounded-[22px] bg-[#0b0b0f]/80 p-2 pl-4">
+            <div className="card mx-auto flex max-w-[640px] items-center gap-3 rounded-full p-2 pl-5">
               <div className="min-w-0 flex-1">
-                <div className="truncate whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.16em] text-chrome-500">
-                  № {pad2(ctx.table.number)} · <span className="text-crimson">{count} арт.</span>
+                <div className="truncate whitespace-nowrap text-[10.5px] font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                  № {pad2(ctx.table.number)} · <span className="text-terra">{count} арт.</span>
                 </div>
-                <motion.div key={cartTotal(lines)} initial={reduced ? false : { scale: 1.08 }} animate={{ scale: 1 }} className="tabular origin-left font-display text-[18px] font-semibold">
+                <motion.div key={cartTotal(lines)} initial={reduced ? false : { scale: 1.08 }} animate={{ scale: 1 }} className="tabular origin-left font-display text-[22px] font-semibold leading-none">
                   {formatEur(cartTotal(lines))}
                 </motion.div>
               </div>
@@ -248,7 +245,7 @@ export function QrApp() {
                   setSubmitError(null);
                   setDrawer(true);
                 }}
-                className="h-12 shrink-0 rounded-2xl bg-gradient-to-b from-crimson to-crimson-deep px-5 text-[14px] font-bold text-white shadow-[0_8px_30px_-8px_rgba(255,42,42,0.9),inset_0_1px_0_rgba(255,255,255,0.35)]"
+                className="h-12 shrink-0 rounded-full bg-terra px-5 text-[14px] font-bold text-paper shadow-[0_10px_24px_-10px_rgba(180,85,47,0.9)]"
               >
                 Преглед на поръчката
               </MagneticButton>
@@ -283,10 +280,10 @@ export function QrApp() {
             initial={{ opacity: 0, y: 20, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10 }}
-            className="glass fixed inset-x-4 bottom-24 z-[95] mx-auto max-w-[420px] rounded-2xl bg-[#0b0b0f]/85 px-4 py-3 text-center text-[13px] font-semibold text-white shadow-[0_0_30px_rgba(255,42,42,0.35)]"
+            className="card fixed inset-x-4 bottom-24 z-[95] mx-auto max-w-[420px] rounded-full px-4 py-3 text-center text-[13px] font-semibold text-ink"
             onClick={() => setTracker(true)}
           >
-            <span className="mr-2 inline-block h-2 w-2 rounded-full bg-crimson shadow-[0_0_8px_rgba(255,42,42,0.9)]" />
+            <span className="mr-2 inline-block h-2 w-2 rounded-full bg-olive" />
             {toast}
           </motion.div>
         )}
@@ -315,30 +312,23 @@ function Header({
   return (
     <header className="relative">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="font-display leading-none">
-            <span className="chrome-text block text-[44px] font-bold tracking-[-0.04em] sm:text-[64px]">{first}</span>
-            <span className="mt-1 block font-mono text-[11px] font-medium uppercase tracking-[0.55em] text-chrome-300 sm:text-[13px]">{rest.join(' ')}</span>
-          </h1>
-        </div>
+        <h1 className="leading-none">
+          <span className="block font-display text-[42px] font-semibold tracking-[0.02em] text-ink sm:text-[52px]">{first}</span>
+          <span className="mt-1 block text-[10.5px] font-semibold uppercase tracking-[0.45em] text-brass">{rest.join(' ')}</span>
+        </h1>
         {demoTables && demoTables.length > 0 && (
           <div className="relative">
             <button
               onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
-              className="rounded-full border border-dashed border-white/15 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-chrome-500 hover:text-chrome-300"
+              className="rounded-full border border-dashed border-ink/20 px-3 py-1.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-mute hover:text-ink"
               title="Само за локално тестване"
             >
               Тест: маса ▾
             </button>
             <AnimatePresence>
               {open && (
-                <motion.div
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  className="glass absolute right-0 z-[75] mt-2 grid w-56 grid-cols-5 gap-1 rounded-2xl bg-[#0b0b0f]/95 p-2"
-                >
+                <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="card absolute right-0 z-[75] mt-2 grid w-56 grid-cols-5 gap-1 rounded-2xl p-2">
                   {demoTables.map((t) => (
                     <button
                       key={t.number}
@@ -346,7 +336,7 @@ function Header({
                         setOpen(false);
                         onSwitch(t.number);
                       }}
-                      className={`tabular h-9 rounded-lg font-mono text-[12px] ${t.number === currentNumber ? 'bg-crimson/20 text-white ring-1 ring-crimson/60' : 'text-chrome-300 hover:bg-white/5'}`}
+                      className={`tabular h-9 rounded-lg text-[12px] font-semibold ${t.number === currentNumber ? 'bg-ink text-paper' : 'text-ink-soft hover:bg-sand'}`}
                     >
                       {pad2(t.number)}
                     </button>
@@ -357,11 +347,10 @@ function Header({
           </div>
         )}
       </div>
-      <div className="chrome-line mt-4 h-px w-full opacity-40" />
-      <p className="mt-3 flex flex-wrap items-center gap-x-2 text-[13px] font-medium text-chrome-300">
-        <span>📍 {tableTitle}</span>
-        <span className="text-chrome-700">•</span>
-        <span className="text-white">{routing}</span>
+      <p className="mt-4 inline-flex flex-wrap items-center gap-x-2 rounded-full border border-ink/10 bg-paper/80 px-3.5 py-1.5 text-[12.5px] font-medium text-ink-soft">
+        <span className="text-ink">📍 {tableTitle}</span>
+        <span className="text-ink/25">•</span>
+        <span>{routing}</span>
       </p>
     </header>
   );
@@ -369,14 +358,14 @@ function Header({
 
 function Loader() {
   return (
-    <div className="grid min-h-dvh place-items-center bg-obsidian" role="status" aria-label="Зареждане на менюто">
+    <div className="grid min-h-dvh place-items-center bg-linen" role="status" aria-label="Зареждане на менюто">
       <div className="text-center">
-        <div className="chrome-text font-display text-5xl font-bold tracking-[-0.04em]">NOAR</div>
-        <div className="mx-auto mt-4 h-px w-40 overflow-hidden bg-white/10">
-          <div className="scan-anim h-full w-1/3 bg-crimson shadow-[0_0_12px_rgba(255,42,42,0.9)]" style={{ animation: 'loader-slide 1.2s ease-in-out infinite' }} />
+        <div className="font-display text-5xl font-semibold text-ink">NOAR</div>
+        <div className="mx-auto mt-4 h-px w-40 overflow-hidden bg-ink/10">
+          <div className="h-full w-1/3 bg-brass" style={{ animation: 'loader-slide 1.2s ease-in-out infinite' }} />
         </div>
         <style>{`@keyframes loader-slide{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}`}</style>
-        <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.4em] text-chrome-500">Зареждане</div>
+        <div className="mt-3 text-[10px] font-semibold uppercase tracking-[0.4em] text-ink-mute">Зареждане</div>
       </div>
     </div>
   );
@@ -384,12 +373,12 @@ function Loader() {
 
 function FullscreenMessage({ title, text }: { title: string; text: string }) {
   return (
-    <div className="grid min-h-dvh place-items-center bg-obsidian px-6 text-center">
+    <div className="grid min-h-dvh place-items-center bg-linen px-6 text-center">
       <div>
-        <div className="chrome-text font-display text-4xl font-bold">NOAR</div>
+        <div className="font-display text-4xl font-semibold">NOAR</div>
         <h1 className="mt-6 font-display text-lg">{title}</h1>
-        <p className="mt-2 max-w-sm text-sm text-chrome-500">{text}</p>
-        <button onClick={() => window.location.reload()} className="mt-6 rounded-full border border-white/15 px-5 py-2.5 text-sm text-white">
+        <p className="mt-2 max-w-sm text-sm text-ink-soft">{text}</p>
+        <button onClick={() => window.location.reload()} className="mt-6 rounded-full border border-ink/20 bg-paper px-5 py-2.5 text-sm text-ink">
           Опитай отново
         </button>
       </div>
