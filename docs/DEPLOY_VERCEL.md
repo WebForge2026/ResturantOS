@@ -1,33 +1,34 @@
-# Test-Deployment: Vercel + Neon (temporäre Datenbank)
+# Test deployment: Vercel + Neon (temporary database)
 
-Drei Vercel-Projekte aus **einem** GitHub-Repo, plus eine kostenlose Neon-Postgres-Datenbank:
+Three Vercel projects from **one** GitHub repo, plus a free Neon Postgres database:
 
-| Vercel-Projekt | Root Directory | Was |
+| Vercel project | Root Directory | What |
 |---|---|---|
-| `noar-api` | `backend` | Laravel-API (PHP-Runtime `vercel-php`) |
-| `noar-staff` | `apps/ops` | Personal-Portal (POS, Küche, Bar, Kellner, Admin) |
-| `noar-menu` | `apps/qr-menu` | QR-Menü für Gäste |
+| `noar-api` | `backend` | Laravel API (PHP runtime `vercel-php`) |
+| `noar-staff` | `apps/ops` | Staff portal (POS, kitchen, bar, waiter, admin) |
+| `noar-menu` | `apps/qr-menu` | Guest QR menu |
 
-> **Nur zum Testen.** Zahlungen sind simuliert, es gibt keine Fiskalkasse. Auf Vercel gibt es keinen
-> WebSocket-Server: Die Bildschirme aktualisieren sich alle paar Sekunden statt sofort. Hochgeladene
-> Fotos bleiben auf Vercel nicht dauerhaft gespeichert; die Fotos aus dem Wolt-Menü werden mit ausgeliefert.
+> **For testing only.**
+> - Payments are simulated and there is no fiscal device.
+> - Vercel has no WebSocket server, so screens refresh every few seconds instead of instantly.
+> - Photos uploaded on Vercel are not stored permanently. The Wolt menu photos ship with the apps.
 
-## 1. Datenbank (Neon, kostenlos)
-1. Auf https://neon.tech mit GitHub anmelden → **New Project** (Region: *Europe (Frankfurt)*).
-2. Unter **Connection string** die Variante **„Pooled connection“** kopieren:
-   `postgresql://USER:PASSWORT@ep-xxxx-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require`
+## 1. Database (Neon, free)
+1. Sign in at https://neon.tech with GitHub → **New Project** (region: *Europe (Frankfurt)*).
+2. Under **Connection string**, copy the **"Pooled connection"** variant:
+   `postgresql://USER:PASSWORD@ep-xxxx-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require`
 
 ## 2. Backend `noar-api`
-Vercel → **Add New → Project** → Repo `WebForge2026/ResturantOS` → Branch `claude/confident-wozniak-gj2rs1`.
+Vercel → **Add New → Project** → repo `WebForge2026/ResturantOS` → branch `claude/confident-wozniak-gj2rs1`.
 - **Root Directory:** `backend`
 - **Framework Preset:** Other
-- **Environment Variables** (alle einfügen):
+- **Environment Variables** (paste all):
 
 ```
 APP_NAME=NOAR RestaurantOS
 APP_ENV=demo
 APP_DEBUG=false
-APP_KEY=<aus dem Chat>
+APP_KEY=<from the chat>
 APP_URL=https://noar-api.vercel.app
 DB_CONNECTION=pgsql
 DB_URL=<Neon connection string>
@@ -38,28 +39,29 @@ LOG_CHANNEL=stderr
 BROADCAST_CONNECTION=log
 MAIL_MAILER=log
 NOAR_DEMO_TABLE_LOOKUP=true
-NOAR_DEMO_PASSWORD=<eigenes Demo-Passwort, mind. 10 Zeichen>
-NOAR_SETUP_KEY=<aus dem Chat>
+NOAR_DEMO_PASSWORD=<your own demo password, min. 10 characters>
+NOAR_SETUP_KEY=<from the chat>
 CORS_ALLOWED_ORIGINS=*
 ```
 
-**Deploy** klicken. Danach die Adresse notieren, z. B. `https://noar-api.vercel.app`.
-Test im Browser: `https://noar-api.vercel.app/api/v1/system/status` → `"database":true`.
+Click **Deploy** and note the address, e.g. `https://noar-api.vercel.app`.
+Check in the browser: `https://noar-api.vercel.app/api/v1/system/status` should show `"database":true`.
 
-## 3. Datenbank einmalig befüllen
-In einem Terminal (Windows PowerShell: `curl.exe` statt `curl`):
+## 3. Fill the database (once)
+Run in a terminal (on Windows PowerShell use `curl.exe` instead of `curl`):
 
 ```bash
 curl -X POST -H "X-Setup-Key: <NOAR_SETUP_KEY>" -H "Accept: application/json" https://noar-api.vercel.app/api/v1/system/setup
 ```
 
-Antwort `{"ok":true,...}` = Tabellen, NOAR-Menü (98 Gerichte), 15 Tische und Demo-Konten sind angelegt.
-Mit `?history=1` am Ende werden zusätzlich 6 Tage Beispiel-Umsätze erzeugt (dauert länger).
-**Danach** in Vercel `NOAR_SETUP_KEY` löschen und neu deployen (sonst könnte jemand mit dem Schlüssel alles zurücksetzen).
+The answer `{"ok":true,...}` means the tables, the NOAR menu (98 dishes), 15 tables and the demo accounts were created.
+Append `?history=1` to the URL to also generate 6 days of sample sales (takes longer).
+**Afterwards**, delete `NOAR_SETUP_KEY` in Vercel and redeploy. Otherwise anyone with the key could reset everything.
 
-## 4. Personal-Portal `noar-staff`
-Neues Vercel-Projekt, gleiches Repo/Branch.
-- **Root Directory:** `apps/ops` · **Framework:** Vite
+## 4. Staff portal `noar-staff`
+New Vercel project, same repo and branch.
+- **Root Directory:** `apps/ops`
+- **Framework:** Vite
 - **Environment Variables:**
 
 ```
@@ -67,12 +69,13 @@ VITE_API_ORIGIN=https://noar-api.vercel.app
 VITE_REALTIME=off
 ```
 
-Login: `owner@noar.local`, `cashier@noar.local`, `waiter@noar.local`, `kitchen@noar.local`, `bar@noar.local`,
-`manager@noar.local`, `stock@noar.local` — Passwort = `NOAR_DEMO_PASSWORD`. Registrieren geht auch.
+Log in with `owner@noar.local`, `cashier@noar.local`, `waiter@noar.local`, `kitchen@noar.local`, `bar@noar.local`,
+`manager@noar.local` or `stock@noar.local`. The password is your `NOAR_DEMO_PASSWORD`. Sign-up works too.
 
-## 5. QR-Menü `noar-menu`
-Neues Vercel-Projekt, gleiches Repo/Branch.
-- **Root Directory:** `apps/qr-menu` · **Framework:** Next.js
+## 5. QR menu `noar-menu`
+New Vercel project, same repo and branch.
+- **Root Directory:** `apps/qr-menu`
+- **Framework:** Next.js
 - **Environment Variables:**
 
 ```
@@ -80,10 +83,10 @@ NOAR_API_ORIGIN=https://noar-api.vercel.app
 NEXT_PUBLIC_REALTIME=off
 ```
 
-Aufruf: `https://noar-menu.vercel.app/?table=4`. Für echte QR-Codes im Portal unter **Admin → QR кодове**
-als „Адрес на QR менюто“ die Menü-Adresse eintragen.
+Open it at `https://noar-menu.vercel.app/?table=4`. For real QR codes, go to **Admin → QR кодове** in the staff portal
+and enter the menu address as "Адрес на QR менюто".
 
-## Später absichern / abbauen
-- `CORS_ALLOWED_ORIGINS` auf die Portal-Adresse setzen, z. B. `https://noar-staff.vercel.app`.
-- `NOAR_DEMO_TABLE_LOOKUP=false`, sobald nur noch echte QR-Codes (`?t=…`) benutzt werden.
-- Zum Löschen: die drei Vercel-Projekte und das Neon-Projekt löschen.
+## Hardening later / tearing down
+- Set `CORS_ALLOWED_ORIGINS` to the portal address, e.g. `https://noar-staff.vercel.app`.
+- Set `NOAR_DEMO_TABLE_LOOKUP=false` once only real QR codes (`?t=…`) are used.
+- To remove everything, delete the three Vercel projects and the Neon project.
