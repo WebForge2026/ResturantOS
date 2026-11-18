@@ -28,6 +28,11 @@
 - Both frontends type-check (`tsc --noEmit`).
 - **Not run:** production `next build` / `vite build`, Lighthouse/a11y audit, a real physical phone on LAN (only emulated viewports), and the onboarding wizard as an automated test (it was exercised manually through its components).
 
+## Vercel test deployment (prepared, not deployed by me)
+- `backend/api/index.php` + `backend/vercel.json` (vercel-php runtime, writable paths in /tmp), Postgres support verified locally (PostgreSQL 16: all 10 Laravel tests pass), protected `POST /api/v1/system/setup`, configurable CORS, photos served by the frontends from `/menu/`.
+- Verified locally in a Vercel-like setup (Postgres, production builds of both frontends, no websockets, cross-origin API): the full Playwright acceptance flow passes.
+- Not verified: the real Vercel/Neon environment itself (needs the owner's accounts). See `docs/DEPLOY_VERCEL.md`.
+
 ## Known limitations / next actions
 1. Wolt provides no allergens or nutrition values; they must be entered in Admin (none are invented).
 2. No `contracts/openapi.yaml` yet — `docs/API.md` describes the API.

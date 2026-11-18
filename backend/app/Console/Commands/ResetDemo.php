@@ -13,7 +13,7 @@ class ResetDemo extends Command
 
     public function handle(): int
     {
-        if (! app()->environment('local', 'testing')) {
+        if (! app()->environment('local', 'testing', 'demo')) {
             $this->error('noar:reset е разрешена само при APP_ENV=local.');
             return self::FAILURE;
         }

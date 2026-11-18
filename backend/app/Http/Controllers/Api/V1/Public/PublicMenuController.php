@@ -28,7 +28,7 @@ class PublicMenuController extends Controller
     /** LOCAL DEMO ONLY: map table numbers → QR tokens so ?table=7 works. */
     public function demoTables(): JsonResponse
     {
-        if (! app()->environment('local', 'testing') || ! config('noar.demo_table_lookup')) {
+        if (! app()->environment('local', 'testing', 'demo') || ! config('noar.demo_table_lookup')) {
             abort(404);
         }
         $tables = DiningTable::whereHas('branch', fn ($q) => $q->where('slug', config('noar.demo_branch_slug')))

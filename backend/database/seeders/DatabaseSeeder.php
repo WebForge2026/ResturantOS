@@ -140,12 +140,7 @@ class DatabaseSeeder extends Seeder
         foreach ($data['categories'] as $ci => $c) {
             $category = Category::create(['branch_id' => $branch->id, 'name' => $c['name'], 'slug' => $c['slug'], 'sort' => $ci]);
             foreach ($c['products'] as $pi => $row) {
-                $imageUrl = null;
-                if ($row['photo'] && is_file("{$photoDir}/{$row['photo']}")) {
-                    $path = "products/{$branch->id}/{$row['photo']}";
-                    \Illuminate\Support\Facades\Storage::disk('public')->put($path, file_get_contents("{$photoDir}/{$row['photo']}"));
-                    $imageUrl = '/storage/'.$path;
-                }
+                $imageUrl = $row['photo'] && is_file("{$photoDir}/{$row['photo']}") ? config('noar.photo_base').$row['photo'] : null;
                 [$style, $base] = $stationArt[$c['station']] ?? $stationArt['hot'];
                 $p = Product::create([
                     'branch_id' => $branch->id, 'category_id' => $category->id, 'station_id' => $stations[$c['station']]->id,

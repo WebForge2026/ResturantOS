@@ -74,6 +74,9 @@ cd backend && php artisan test                          # Laravel feature tests 
 cd backend && php artisan noar:reset && cd ../e2e && pnpm test   # Playwright acceptance flow (stack must be running)
 ```
 
+## Online test (Vercel)
+Step-by-step: `docs/DEPLOY_VERCEL.md` (Vercel + free Neon Postgres, one-time setup endpoint).
+
 ## Docs
 `docs/ARCHITECTURE.md`, `docs/DOMAIN_RULES.md` (order, check, payment and stock rules), `docs/API.md`,
 `docs/QR_DESIGN_SPEC.md`, `docs/SETUP.md`, `docs/PROJECT_STATUS.md`.

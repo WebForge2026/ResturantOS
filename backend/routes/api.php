@@ -13,6 +13,9 @@ use App\Http\Controllers\Api\V1\Staff\StaffController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
+    Route::get('system/status', [\App\Http\Controllers\Api\V1\SystemController::class, 'status']);
+    Route::post('system/setup', [\App\Http\Controllers\Api\V1\SystemController::class, 'setup']);
+
     // ------------------------------------------------------------- public guest QR API
     Route::prefix('public')->middleware('throttle:qr-read')->group(function () {
         Route::get('demo/tables', [PublicMenuController::class, 'demoTables']);

@@ -55,7 +55,8 @@ export const useLiveSession = (guestToken: string | null, onClosed: () => void):
 
   // WebSocket hints
   useEffect(() => {
-    if (!guestToken) return;
+    // NEXT_PUBLIC_REALTIME=off (e.g. Vercel, no websocket server): polling only.
+    if (!guestToken || process.env.NEXT_PUBLIC_REALTIME === 'off') return;
     let echo: EchoLike | null = null;
     let cancelled = false;
     (async () => {

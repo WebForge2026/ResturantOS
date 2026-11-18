@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Download } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { formatEur } from '@/lib/api';
+import { API_ORIGIN, formatEur } from '@/lib/api';
 import { useAuth, useCan } from '@/lib/auth';
 import { useBranchQuery } from '@/lib/queries';
 import { Badge, Button, Card, CardHeader, Field, Input, Segmented, Spinner, Stat, toast } from '@/components/ui';
@@ -32,7 +32,7 @@ export function ReportsPage() {
 
   const exportCsv = async () => {
     try {
-      const res = await fetch(`/api/v1/branches/${branchId}/reports/sales.csv?from=${from}&to=${to}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_ORIGIN}/api/v1/branches/${branchId}/reports/sales.csv?from=${from}&to=${to}`, { headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) throw new Error('Неуспешен експорт');
       const blob = await res.blob();
       const a = document.createElement('a');

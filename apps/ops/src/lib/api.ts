@@ -3,8 +3,11 @@ import { useAuth } from './auth';
 
 export { ApiError, formatEur, formatBgn, newIdempotencyKey } from '@noar/api-client';
 
+/** Empty locally (Vite proxies /api). On Vercel: VITE_API_ORIGIN=https://<backend>.vercel.app */
+export const API_ORIGIN = (import.meta.env.VITE_API_ORIGIN ?? '').replace(/\/$/, '');
+
 export const http = createHttp({
-  baseUrl: '',
+  baseUrl: API_ORIGIN,
   getToken: () => useAuth.getState().token,
   onUnauthorized: () => useAuth.getState().logout(true),
 });

@@ -10,3 +10,6 @@ playwright-report/
 test-results/
 .turbo/
 .cache/
+apps/qr-menu/public/menu/
+apps/ops/public/menu/
+*.tsbuildinfo

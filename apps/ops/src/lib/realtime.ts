@@ -66,7 +66,8 @@ export const useRealtime = (onEvent?: Handler) => {
 
   useEffect(() => {
     if (!token || !branchId) return;
-    void ensureEcho(token, branchId).catch(() => setConnected(false));
+    // VITE_REALTIME=off (e.g. Vercel, no websocket server): screens rely on polling only.
+    if (import.meta.env.VITE_REALTIME !== 'off') void ensureEcho(token, branchId).catch(() => setConnected(false));
     const h: Handler = (e, p) => {
       void qc.invalidateQueries({ queryKey: ['b', branchId] });
       onEvent?.(e, p);

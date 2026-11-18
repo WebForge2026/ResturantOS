@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { FileUp, Pencil, Plus, Trash2, X } from 'lucide-react';
-import { bApi, formatEur, mutate, type MenuData, type MenuProduct } from '@/lib/api';
+import { API_ORIGIN, bApi, formatEur, mutate, type MenuData, type MenuProduct } from '@/lib/api';
 import { useAuth, useCan } from '@/lib/auth';
 import { useMenu } from '@/lib/queries';
 import { cx, parseEurInput } from '@/lib/format';
@@ -221,7 +221,7 @@ function ProductDialog({ product, data, defaultCategory, onClose, onSaved }: { p
                     const fd = new FormData();
                     fd.append('image', file);
                     try {
-                      const res = await fetch(`/api/v1/branches/${useAuth.getState().branchId}/products/${existing.id}/image`, { method: 'POST', body: fd, headers: { Authorization: `Bearer ${useAuth.getState().token}`, Accept: 'application/json' } });
+                      const res = await fetch(`${API_ORIGIN}/api/v1/branches/${useAuth.getState().branchId}/products/${existing.id}/image`, { method: 'POST', body: fd, headers: { Authorization: `Bearer ${useAuth.getState().token}`, Accept: 'application/json' } });
                       const json = await res.json();
                       if (!res.ok) throw new Error(json?.error?.details?.image?.[0] ?? json?.error?.message ?? 'Грешка при качване');
                       setF((cur) => ({ ...cur, image_url: json.product.image_url }));
