@@ -1,0 +1,19 @@
+{
+  "name": "noar-restaurantos",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev:qr": "pnpm --filter @noar/qr-menu dev",
+    "dev:ops": "pnpm --filter @noar/ops dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "e2e": "pnpm --filter @noar/e2e test"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "@tailwindcss/oxide",
+      "sharp"
+    ]
+  }
+}

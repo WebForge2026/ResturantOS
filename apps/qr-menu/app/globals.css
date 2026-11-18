@@ -1,0 +1,128 @@
+@import 'tailwindcss';
+
+/* NOAR — Cyber-Industrial Darkroom. Authoritative palette, see docs/QR_DESIGN_SPEC.md */
+@theme {
+  --color-obsidian: #050507;
+  --color-crimson: #ff2a2a;
+  --color-crimson-deep: #990000;
+  --color-chrome-100: #f4f5f7;
+  --color-chrome-300: #c9ccd3;
+  --color-chrome-500: #8a8f99;
+  --color-chrome-700: #3a3d44;
+  --font-display: 'Unbounded Variable', 'Manrope Variable', system-ui, sans-serif;
+  --font-sans: 'Manrope Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --ease-noar: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #050507;
+  color: #f4f5f7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  overscroll-behavior-y: none;
+}
+
+/* Architectural 1px gridlines (white/10) */
+.noar-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.1) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 35%, black 30%, transparent 85%);
+}
+
+/* Film grain overlay */
+.noar-grain {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode: overlay;
+  opacity: 0.04;
+}
+
+/* Liquid chrome text */
+.chrome-text {
+  background: linear-gradient(180deg, #ffffff 0%, #d9dce2 38%, #7d828c 52%, #eef0f3 64%, #9aa0aa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.chrome-line {
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.55), #c9ccd3, rgb(255 255 255 / 0.2), transparent);
+}
+
+.glass {
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.02));
+  border: 1px solid rgb(255 255 255 / 0.1);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+}
+
+.crimson-rim {
+  box-shadow:
+    0 0 0 1px rgb(255 42 42 / 0.35),
+    0 0 30px rgb(255 42 42 / 0.5),
+    inset 0 0 18px rgb(153 0 0 / 0.35);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes laser-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(200%);
+  }
+}
+
+.laser-pulse {
+  animation: laser-pulse 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .laser-pulse,
+  .scan-anim {
+    animation: none !important;
+  }
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
