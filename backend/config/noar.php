@@ -10,5 +10,7 @@ return [
     // One-time remote setup (e.g. Vercel): POST /api/v1/system/setup with header X-Setup-Key.
     // Disabled unless a long random key is configured. Remove the key after setup.
     'setup_key' => env('NOAR_SETUP_KEY'),
+    // Demo hosting: migrate + seed automatically when the database is empty (see EnsureDemoDatabase).
+    'auto_setup' => (bool) env('NOAR_AUTO_SETUP', false),
     'seed_history' => (bool) env('NOAR_SEED_HISTORY', true),
 ];

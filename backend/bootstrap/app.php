@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withBroadcasting(__DIR__.'/../routes/channels.php', ['prefix' => 'api', 'middleware' => ['auth:sanctum']])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias(['branch' => ResolveBranch::class]);
+        $middleware->prependToGroup('api', \App\Http\Middleware\EnsureDemoDatabase::class);
     })
     ->withExceptions(function (Exceptions $exceptions) use ($err): void {
         $exceptions->shouldRenderJsonWhen(fn (Request $request) => $request->is('api/*') || $request->expectsJson());

@@ -24,6 +24,17 @@ foreach ([
     $_ENV[$key] = $_SERVER[$key] = $value;
 }
 
+// No APP_KEY configured? Derive a stable one from the (secret) database URL that Vercel/Neon inject,
+// so no secret ever has to be typed in by hand. Rotating the database password rotates the key.
+if (! getenv('APP_KEY')) {
+    $dbUrl = getenv('DB_URL') ?: getenv('DATABASE_URL');
+    if ($dbUrl) {
+        $key = 'base64:'.base64_encode(hash_hmac('sha256', 'noar-app-key', $dbUrl, true));
+        putenv("APP_KEY=$key");
+        $_ENV['APP_KEY'] = $_SERVER['APP_KEY'] = $key;
+    }
+}
+
 // Serve as if from public/index.php so Laravel does not treat "/api" as the base path.
 $_SERVER['SCRIPT_FILENAME'] = __DIR__.'/../public/index.php';
 $_SERVER['SCRIPT_NAME'] = '/index.php';
